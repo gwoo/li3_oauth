@@ -113,6 +113,16 @@ class Provider extends \lithium\core\StaticObject {
 	public static function fetch($key) {
 		return static::$_service->storage->read($key);
 	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @param string $key
+	 * @return void
+	 */
+	public static function delete($key) {
+		return static::$_service->storage->remove($key);
+	}
 }
 
 ?>

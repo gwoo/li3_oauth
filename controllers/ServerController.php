@@ -16,28 +16,36 @@ class ServerController extends \lithium\action\Controller {
 	protected function _init() {
 		parent::_init();
 		Provider::config(array(
-			'host' => 'localhost',
-			'request_token' => 'union-of-rad/rad-dev/plugins/oauth/request_token',
-			'access_token' => 'union-of-rad/rad-dev/plugins/oauth/access_token',
-			'port' => 30500
+			'host' => $this->request->env('SERVER_NAME'),
+			'request_token' => $this->request->env('base') . '/oauth/request_token',
+			'access_token' => $this->request->env('base') . '/oauth/request_token',
+			'authorize' => $this->request->env('base') . '/oauth/authorize',
+			'port' => 30501
 		));
 	}
 
 	public function request_token() {
 		if (empty($this->request->data)) {
-			return 'Invalid Request';
+			return $this->render(array('text' => 'Invalid Request', 'status' => 401));
 		}
+
 		$consumer = Provider::fetch($this->request->data['oauth_consumer_key']);
-		$request = array(
+		if (!$consumer) {
+			return $this->render(array('text' => 'Invalid Consumer Key', 'status' => 401));
+		}
+
+		$isValid = Provider::verify(array(
 			'params' => $this->request->data, 'url' => 'request_token',
-		) + (array) $consumer;
-		if (Provider::verify($request)) {
+		) + (array) $consumer);
+
+		if ($isValid) {
 			$token = Provider::create('token');
 			$data = (array) $consumer + (array) $token;
 			Provider::store($consumer->oauth_consumer_key, $data);
 			Provider::store($token->oauth_token, $data);
 			return http_build_query((array) $token);
 		}
+		$this->render(array('text' => 'Invalid Signature', 'status' => 401));
 	}
 
 	public function authorize() {
@@ -47,10 +55,10 @@ class ServerController extends \lithium\action\Controller {
 		}
 
 		if (!empty($this->request->data['allow'])) {
-			
+
 		}
 		if (!empty($this->request->data['deny'])) {
-			
+
 		}
 		return compact('token');
 	}

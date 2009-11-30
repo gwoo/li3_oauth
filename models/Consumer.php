@@ -52,10 +52,10 @@ class Consumer extends \lithium\core\StaticObject {
 	 * @param array $options optional params for the request
 	 * @return string
 	 */
-	public static function request($options = array()) {
-		return static::$_service->send('request_token', $options + array(
+	public static function request($params = array(), $options = array()) {
+		return static::$_service->send('request_token', $params + array(
 			'hash' => 'HMAC-SHA1', 'method' => 'POST'
-		));
+		), $options);
 	}
 
 	/**
@@ -64,10 +64,10 @@ class Consumer extends \lithium\core\StaticObject {
 	 * @param array $token return value from `Consumer::request()`
 	 * @return string
 	 */
-	public static function access($token, $options = array()) {
-		return static::$_service->send('access_token', $options + array(
+	public static function access($token, $params = array(), $options = array()) {
+		return static::$_service->send('access_token', $params + array(
 			'hash' => 'HMAC-SHA1', 'method' => 'POST', 'token' => (array) $token,
-		));
+		), $options);
 	}
 
 	/**
@@ -78,10 +78,10 @@ class Consumer extends \lithium\core\StaticObject {
 	 * @param array $data data to send as the body of the request
 	 * @return string
 	 */
-	public static function post($url, $token, $data = array(), $options = array()) {
-		return static::$_service->send($url, $options + array(
+	public static function post($url, $token, $data = array(), $params, $options = array()) {
+		return static::$_service->send($url, $params + array(
 			'hash' => 'HMAC-SHA1', 'method' => 'POST', 'token' => (array) $token, 'data' => $data
-		));
+		), $options);
 	}
 
 	/**
@@ -91,11 +91,16 @@ class Consumer extends \lithium\core\StaticObject {
 	 * @return string
 	 */
 	public static function authorize($token) {
-		$token = (is_array($token) && isset($token['oauth_token'])) ? $token['oauth_token'] : $token;
 		$url = static::$_service->url('authorize');
+		if (is_array($token)) {
+			if (empty($token['oauth_token'])) {
+				return $url;
+			}
+			$token = $token['oauth_token'];
+		}
 		return "{$url}?oauth_token={$token}";
 	}
-	
+
 	/**
 	 * get url from remote authenticated endpoint along with token
 	 *
@@ -103,11 +108,46 @@ class Consumer extends \lithium\core\StaticObject {
 	 * @return string
 	 */
 	public static function authenticate($token) {
-		$token = (is_array($token) && isset($token['oauth_token'])) ? $token['oauth_token'] : $token;
 		$url = static::$_service->url('authenticate');
+		if (is_array($token)) {
+			if (empty($token['oauth_token'])) {
+				return $url;
+			}
+			$token = $token['oauth_token'];
+		}
 		return "{$url}?oauth_token={$token}";
 	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @param string $key
+	 * @param string $value
+	 * @return void
+	 */
+	public static function store($key, $value) {
+		return static::$_service->storage->write($key, $value);
+	}
 
+	/**
+	 * undocumented function
+	 *
+	 * @param string $key
+	 * @return void
+	 */
+	public static function fetch($key) {
+		return static::$_service->storage->read($key);
+	}
+	
+	/**
+	 * undocumented function
+	 *
+	 * @param string $key
+	 * @return void
+	 */
+	public static function delete($key) {
+		return static::$_service->storage->remove($key);
+	}
 }
 
 ?>

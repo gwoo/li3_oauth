@@ -58,6 +58,9 @@ class File extends \lithium\core\Object {
 		if (isset($data->{$key})) {
 			return $data->{$key};
 		}
+		if ($key) {
+			return null;
+		}
 		return $data;
 	}
 	

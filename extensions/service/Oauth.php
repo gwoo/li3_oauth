@@ -42,9 +42,9 @@ class Oauth extends \lithium\core\Object {
 	public function __construct($config = array()) {
 		$defaults = array(
 			'host' => null,
-			'authorize' => 'oauth/authorize',
-			'request_token' => 'oauth/request_token',
-			'access_token' => 'oauth/access_token',
+			'authorize' => '/oauth/authorize',
+			'request_token' => '/oauth/request_token',
+			'access_token' => '/oauth/access_token',
 			'oauth_consumer_key' => 'key',
 			'oauth_consumer_secret' => 'secret'
 		);
@@ -95,7 +95,7 @@ class Oauth extends \lithium\core\Object {
 		$method = !empty($options['method']) ? $options['method'] : 'post';
 		$data = $this->sign($data + compact('url'));
 		$response = $this->service->send($method, $url, $data, $options);
-		if (in_array($path, array('request_token', 'access_token'))) {
+		if (strpos($response, 'oauth_') === 0) {
 			return $this->_decode($response);
 		}
 		return $response;
@@ -109,7 +109,7 @@ class Oauth extends \lithium\core\Object {
 	 */
 	public function url($url) {
 		$url = $this->config($url);
-		return "http://{$this->_config['host']}/{$url}";
+		return "http://{$this->_config['host']}{$url}";
 	}
 
 	/**
@@ -134,6 +134,7 @@ class Oauth extends \lithium\core\Object {
 		$options += $defaults;
 		$params = $this->_build($options['params'] + (array)$options['token']) + $options['data'];
 		$base = $this->_base($options['method'], $options['url'], $params);
+
 		$key = join("&", array(
 			rawurlencode($options['oauth_consumer_secret']),
 			rawurlencode($options['token']['oauth_token_secret'])
@@ -210,7 +211,8 @@ class Oauth extends \lithium\core\Object {
 	protected function _decode($query = null) {
 		$token = array();
 		$result = array_filter(explode('&', $query), function ($value) use (&$token) {
-			if ($parts = explode("=", $value)) {
+			$parts = explode("=", $value);
+			if (count($parts) > 1) {
 				$token[rawurldecode($parts[0])] = rawurldecode($parts[1]);
 			}
 			return false;
