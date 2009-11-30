@@ -32,7 +32,7 @@ class ClientController extends \lithium\action\Controller {
 			$this->redirect(array('controller' => 'client', 'action' => 'authorize'));
 		}
 		if (!empty($this->request->data)) {
-			$url = 'statuses/update.json';
+			$url = '/statuses/update.json';
 			$result = Consumer::post($url, $token, $this->request->data);
 			$message = json_decode($result);
 		}
