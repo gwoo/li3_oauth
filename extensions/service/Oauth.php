@@ -61,7 +61,7 @@ class Oauth extends \lithium\core\Object {
 	public function _init() {
 		parent::_init();
 		$this->service = new $this->_classes['service']($this->_config);
-		$this->store = new $this->_classes['storage']($this->_config);
+		$this->storage = new $this->_classes['storage']($this->_config);
 	}
 
 	/**
@@ -80,7 +80,7 @@ class Oauth extends \lithium\core\Object {
 		}
 		return $this->_config;
 	}
-	
+
 	/**
 	 * Send request
 	 *
@@ -95,7 +95,7 @@ class Oauth extends \lithium\core\Object {
 		$method = !empty($options['method']) ? $options['method'] : 'post';
 		$data = $this->sign($data + compact('url'));
 		$response = $this->service->send($method, $url, $data, $options);
-		if (strpos($response, 'oauth') !== false) {
+		if (in_array($path, array('request_token', 'access_token'))) {
 			return $this->_decode($response);
 		}
 		return $response;
@@ -126,22 +126,25 @@ class Oauth extends \lithium\core\Object {
 	 */
 	public function sign($options = array()) {
 		$defaults = array(
-			'hash' => 'HMAC-SHA1', 'secret' => $this->_config['oauth_consumer_secret'],
-			'params' => array(), 'method' => 'POST', 'url' => '/', 'data' => array(),
+			'url' => '', 'method' => 'POST', 'hash' => 'HMAC-SHA1',
+			'oauth_consumer_secret' => $this->_config['oauth_consumer_secret'],
+			'params' => array(), 'data' => array(),
 			'token' => array('oauth_token' => null, 'oauth_token_secret' => null),
 		);
 		$options += $defaults;
 		$params = $this->_build($options['params'] + (array)$options['token']) + $options['data'];
-		$base = $this->_base($options['type'], $options['url'], $params);
+		$base = $this->_base($options['method'], $options['url'], $params);
 		$key = join("&", array(
-			rawurlencode($options['secret']), rawurlencode($options['token']['oauth_token_secret'])
+			rawurlencode($options['oauth_consumer_secret']),
+			rawurlencode($options['token']['oauth_token_secret'])
 		));
+
 		switch ($options['hash']) {
 			case 'HMAC-SHA1':
 				$signature = base64_encode(hash_hmac('sha1', $base, $key, true));
 			break;
 			default:
-				return $options['secret'];
+				return $options['token']['oauth_token'];
 			break;
 		}
 		$params['oauth_signature'] = $signature;
