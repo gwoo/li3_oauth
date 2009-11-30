@@ -60,8 +60,12 @@ class Oauth extends \lithium\core\Object {
 	 */
 	public function _init() {
 		parent::_init();
-		$this->service = new $this->_classes['service']($this->_config);
-		$this->storage = new $this->_classes['storage']($this->_config);
+		$config = $this->_config;
+		if (!empty($config['proxy'])) {
+			$config['host'] = $config['proxy'];
+		}
+		$this->service = new $this->_classes['service']($config);
+		$this->storage = new $this->_classes['storage']($config);
 	}
 
 	/**
@@ -134,12 +138,10 @@ class Oauth extends \lithium\core\Object {
 		$options += $defaults;
 		$params = $this->_build($options['params'] + (array)$options['token']) + $options['data'];
 		$base = $this->_base($options['method'], $options['url'], $params);
-
 		$key = join("&", array(
 			rawurlencode($options['oauth_consumer_secret']),
 			rawurlencode($options['token']['oauth_token_secret'])
 		));
-
 		switch ($options['hash']) {
 			case 'HMAC-SHA1':
 				$signature = base64_encode(hash_hmac('sha1', $base, $key, true));

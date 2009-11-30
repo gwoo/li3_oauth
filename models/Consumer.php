@@ -78,7 +78,7 @@ class Consumer extends \lithium\core\StaticObject {
 	 * @param array $data data to send as the body of the request
 	 * @return string
 	 */
-	public static function post($url, $token, $data = array(), $params, $options = array()) {
+	public static function post($url, $token, $data = array(), $params = array(), $options = array()) {
 		return static::$_service->send($url, $params + array(
 			'hash' => 'HMAC-SHA1', 'method' => 'POST', 'token' => (array) $token, 'data' => $data
 		), $options);
