@@ -163,10 +163,14 @@ class Oauth extends \lithium\core\Object {
 	 * @return void
 	 */
 	protected function _base($method, $url, $params) {
+		$query = array();
+		array_walk($params, function ($value, $key) use (&$query){
+			$query[] = $key . '=' . rawurlencode($value);
+		});
 		$path = $this->url($url);
 		$base = join("&", array(
 			$method, rawurlencode($path),
-			rawurlencode(http_build_query($params))
+			rawurlencode(join('&', $query))
 		));
 		return $base;
 	}
