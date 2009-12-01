@@ -11,7 +11,7 @@ namespace li3_oauth\tests\cases\models;
 use \li3_oauth\models\Consumer;
 
 class ConsumerTest extends \lithium\test\Unit {
-	
+
 	public function setUp() {
 		Consumer::config(array(
 			'host' => 'localhost',
@@ -24,7 +24,7 @@ class ConsumerTest extends \lithium\test\Unit {
 	}
 
 	public function testAuthorize() {
-		$expected = 'http://localhost/oauth/authorize?oauth_token=requestkey&oauth_token_secret=requestsecret';
+		$expected = 'http://localhost/oauth/authorize?oauth_token=requestkey';
 		$result = Consumer::authorize(array(
 			'oauth_token' => 'requestkey',
 			'oauth_token_secret' => 'requestsecret'

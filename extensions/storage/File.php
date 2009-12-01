@@ -63,11 +63,11 @@ class File extends \lithium\core\Object {
 		}
 		return $data;
 	}
-	
+
 	/**
 	 * undocumented function
 	 *
-	 * @param string $key 
+	 * @param string $key
 	 * @return void
 	 */
 	public function remove($key) {

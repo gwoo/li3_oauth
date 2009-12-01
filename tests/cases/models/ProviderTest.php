@@ -17,7 +17,6 @@ class ProviderTest extends \lithium\test\Unit {
 			'host' => 'localhost',
 			'oauth_consumer_key' => 'key',
 			'oauth_consumer_secret' => 'secret',
-			'port' => 30500
 		));
 	}
 
@@ -59,10 +58,11 @@ class ProviderTest extends \lithium\test\Unit {
 
 	public function testVerify() {
 		$request = array(
+			'url' => 'request_token',
 			'params' => array(
 				'oauth_consumer_key' => 'key',
 				'oauth_nonce' => '4d31073c8ce205ecd3145d6cc0a3a4f6',
-				'oauth_signature' => 'fKMyRb/Pysuu0XqRoxANOkyiL8I=',
+				'oauth_signature' => 'GfCKugOKkspnq5ihgPR/9xxpf+E=',
 				'oauth_signature_method' => 'HMAC-SHA1', 'oauth_timestamp' => '1259606608',
 				'oauth_version' => '1.0',
 			)
@@ -73,10 +73,11 @@ class ProviderTest extends \lithium\test\Unit {
 
 	public function testVerifyWithToken() {
 		$request = array(
+			'url' => 'request_token',
 			'params' => array(
 				'oauth_consumer_key' => 'key',
 				'oauth_nonce' => '4d31073c8ce205ecd3145d6cc0a3a4f6',
-				'oauth_signature' => 'G/ZDnJOVbvVasoHH/XbDVzdwJ+U=',
+				'oauth_signature' => '10xRa+G7ql3KjDgZySmn5NqNLqQ=',
 				'oauth_signature_method' => 'HMAC-SHA1', 'oauth_timestamp' => '1259606608',
 				'oauth_version' => '1.0',
 			),

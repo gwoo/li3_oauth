@@ -29,7 +29,7 @@ class OauthTest extends \lithium\test\Unit {
 		$oauth = new MockOauth($this->_testConfig);
 		$config = $oauth->config();
 
-		$expected = 'oauth/request_token';
+		$expected = '/oauth/request_token';
 		$result = $config['request_token'];
 		$this->assertEqual($expected, $result);
 	}
@@ -64,7 +64,7 @@ class OauthTest extends \lithium\test\Unit {
 		));
 		$this->assertEqual($expected, $result);
 	}
-	
+
 	public function testPostAcceesToken() {
 		$oauth = new MockOauth($this->_testConfig);
 
@@ -80,6 +80,14 @@ class OauthTest extends \lithium\test\Unit {
 			)
 		));
 		$this->assertEqual($expected, $result);
+	}
+
+	public function testConfigUrl() {
+		$oauth = new MockOauth($this->_testConfig);
+		$expected = 'http://localhost';
+		$result = $oauth->url('');
+		$this->assertEqual($expected, $result);
+
 	}
 }
 ?>

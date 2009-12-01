@@ -79,7 +79,7 @@ class Oauth extends \lithium\core\Object {
 		if (isset($this->_config[$key])) {
 			return $this->_config[$key];
 		}
-		if ($key) {
+		if ($key !== null) {
 			return $key;
 		}
 		return $this->_config;

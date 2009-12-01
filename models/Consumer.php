@@ -117,7 +117,7 @@ class Consumer extends \lithium\core\StaticObject {
 		}
 		return "{$url}?oauth_token={$token}";
 	}
-	
+
 	/**
 	 * undocumented function
 	 *
@@ -138,7 +138,7 @@ class Consumer extends \lithium\core\StaticObject {
 	public static function fetch($key) {
 		return static::$_service->storage->read($key);
 	}
-	
+
 	/**
 	 * undocumented function
 	 *
