@@ -17,7 +17,7 @@ class FileTest extends \lithium\test\Unit {
 	public $file = null;
 
 	public function setUp() {
-		$this->path = LITHIUM_APP_PATH . '/tmp/test_oauth.json';
+		$this->path = LITHIUM_APP_PATH . '/resources/tmp/tests/test_oauth.json';
 		$this->file = new File(array('file' => $this->path));
 	}
 

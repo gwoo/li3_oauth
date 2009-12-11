@@ -22,11 +22,11 @@ class File extends \lithium\core\Object {
 	protected function _init() {
 		parent::_init();
 		if (empty($this->_file)) {
-			$this->_file = LITHIUM_APP_PATH . '/tmp/storage/oauth.json';
+			$this->_file = LITHIUM_APP_PATH . '/resources/oauth/storage/oauth.json';
 			return;
 		}
 		if ($this->_file[0] !== '/') {
-			$this->_file = LITHIUM_APP_PATH . '/tmp/'. $this->_file;
+			$this->_file = LITHIUM_APP_PATH . '/resources/oauth/'. $this->_file;
 		}
 	}
 
