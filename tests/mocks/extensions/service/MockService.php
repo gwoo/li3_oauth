@@ -8,9 +8,9 @@
 
 namespace li3_oauth\tests\mocks\extensions\service;
 
-class MockService extends \lithium\http\Service {
-	
-	public function send($method, $path = null, $data = null, $options = array()) {
+class MockService extends \lithium\net\http\Service {
+
+	public function send($method, $path = null, $data = null, array $options = array()) {
 		if (strpos($path, 'request_token') !== false) {
 			return 'oauth_token=requestkey&oauth_token_secret=requestsecret';
 		}

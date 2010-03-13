@@ -8,7 +8,7 @@
 
 namespace li3_oauth\tests\mocks\extensions\service;
 
-class MockStorage extends \lithium\http\Service {
+class MockStorage extends \lithium\net\http\Service {
 
 	protected $_data;
 

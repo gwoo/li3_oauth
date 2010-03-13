@@ -23,7 +23,7 @@ class Oauth extends \lithium\core\Object {
 	 * @var array
 	 */
 	protected $_classes = array(
-		'service'   => '\lithium\http\Service',
+		'service'   => '\lithium\net\http\Service',
 		'storage'  => '\li3_oauth\extensions\storage\File'
 	);
 
@@ -95,11 +95,24 @@ class Oauth extends \lithium\core\Object {
 	 * @return void
 	 */
 	public function send($path = null, $data = null, $options = array()) {
+		$defaults = array('via' => 'header');
+		$options += $defaults;
 		$url = $this->config($path);
-		$method = !empty($options['method']) ? $options['method'] : 'post';
+		$method = !empty($data['method']) ? $data['method'] : 'post';
 		$data = $this->sign($data + compact('url'));
+
+		if ($options['via'] == 'header') {
+			$auth = 'OAuth realm="",';
+			foreach ($data as $key => $val) {
+				$auth .= $key . '="'.rawurlencode($val).'",';
+				$auth .= "\n";
+			}
+			$options['headers'] = array('Authorization' => $auth);
+			$data = array();
+		}
 		$response = $this->service->send($method, $url, $data, $options);
-		if (strpos($response, 'oauth_') === 0) {
+
+		if (strpos($response, 'oauth_token=') !== false) {
 			return $this->_decode($response);
 		}
 		return $response;
