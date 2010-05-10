@@ -43,6 +43,7 @@ class Oauth extends \lithium\core\Object {
 		$defaults = array(
 			'host' => null,
 			'authorize' => '/oauth/authorize',
+			'authenticate' => '/oauth/authenticate',
 			'request_token' => '/oauth/request_token',
 			'access_token' => '/oauth/access_token',
 			'oauth_consumer_key' => 'key',
