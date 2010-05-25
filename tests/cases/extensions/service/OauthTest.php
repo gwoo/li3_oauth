@@ -14,7 +14,7 @@ class OauthTest extends \lithium\test\Unit {
 
 	protected $_testConfig = array(
 		'classes' => array(
-			'service' => '\li3_oauth\tests\mocks\extensions\service\MockService',
+			'socket' => '\li3_oauth\tests\mocks\extensions\service\MockSocket',
 		),
 		'persistent' => false,
 		'protocol' => 'http',
@@ -59,8 +59,8 @@ class OauthTest extends \lithium\test\Unit {
 			'oauth_token' => 'requestkey',
 			'oauth_token_secret' => 'requestsecret'
 		);
-		$result = $oauth->send('request_token', array(
-			'hash' => 'HMAC-SHA1', 'method' => 'POST', 'params' => array()
+		$result = $oauth->post('request_token', array(
+			'hash' => 'HMAC-SHA1', 'params' => array()
 		));
 		$this->assertEqual($expected, $result);
 	}
@@ -72,8 +72,8 @@ class OauthTest extends \lithium\test\Unit {
 			'oauth_token' => 'accesskey',
 			'oauth_token_secret' => 'accesssecret'
 		);
-		$result = $oauth->send('access_token', array(
-			'hash' => 'HMAC-SHA1', 'method' => 'POST', 'params' => array(),
+		$result = $oauth->post('access_token', array(
+			'hash' => 'HMAC-SHA1', 'params' => array(),
 			'token' => array(
 				'oauth_token' => 'requestkey',
 				'oauth_token_secret' => 'requestsecret'

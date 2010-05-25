@@ -31,6 +31,42 @@ class ConsumerTest extends \lithium\test\Unit {
 		));
 		$this->assertEqual($expected, $result);
 	}
+	
+	public function testRequestToken() {
+		$expected = 'http://localhost/oauth/authorize?oauth_token=requestkey';
+		$result = Consumer::authorize(array(
+			'oauth_token' => 'requestkey',
+			'oauth_token_secret' => 'requestsecret'
+		));
+		$this->assertEqual($expected, $result);
+	}
+	
+	public function testAccessToken() {
+		$expected = 'http://localhost/oauth/authorize?oauth_token=requestkey';
+		$result = Consumer::authorize(array(
+			'oauth_token' => 'requestkey',
+			'oauth_token_secret' => 'requestsecret'
+		));
+		$this->assertEqual($expected, $result);
+	}
+	
+	public function testPost() {
+		$expected = 'http://localhost/oauth/authorize?oauth_token=requestkey';
+		$result = Consumer::post(array(
+			'oauth_token' => 'requestkey',
+			'oauth_token_secret' => 'requestsecret'
+		));
+		$this->assertEqual($expected, $result);
+	}
+	
+	public function testGet() {
+		$expected = 'http://localhost/oauth/authorize?oauth_token=requestkey';
+		$result = Consumer::authorize(array(
+			'oauth_token' => 'requestkey',
+			'oauth_token_secret' => 'requestsecret'
+		));
+		$this->assertEqual($expected, $result);
+	}
 }
 
 ?>

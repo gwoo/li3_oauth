@@ -13,7 +13,7 @@ namespace li3_oauth\extensions\service;
  *
  *
  */
-class Oauth extends \lithium\core\Object {
+class Oauth extends \lithium\net\http\Service {
 
 	protected $_autoConfig = array('classes' => 'merge');
 
@@ -23,8 +23,10 @@ class Oauth extends \lithium\core\Object {
 	 * @var array
 	 */
 	protected $_classes = array(
-		'service'   => '\lithium\net\http\Service',
-		'storage'  => '\li3_oauth\extensions\storage\File'
+		'media'    => '\lithium\net\http\Media',
+		'request'  => '\lithium\net\http\Request',
+		'response' => '\lithium\net\http\Response',
+		'socket'   => '\lithium\net\socket\Context',
 	);
 
 	/**
@@ -41,7 +43,7 @@ class Oauth extends \lithium\core\Object {
 	 */
 	public function __construct($config = array()) {
 		$defaults = array(
-			'host' => null,
+			'host' => 'localhost',
 			'authorize' => '/oauth/authorize',
 			'authenticate' => '/oauth/authenticate',
 			'request_token' => '/oauth/request_token',
@@ -62,11 +64,10 @@ class Oauth extends \lithium\core\Object {
 	public function _init() {
 		parent::_init();
 		$config = $this->_config;
+
 		if (!empty($config['proxy'])) {
 			$config['host'] = $config['proxy'];
 		}
-		$this->service = new $this->_classes['service']($config);
-		$this->storage = new $this->_classes['storage']($config);
 	}
 
 	/**
@@ -90,28 +91,27 @@ class Oauth extends \lithium\core\Object {
 	 * Send request
 	 *
 	 * @param string $method
-	 * @param string $path
+	 * @param string $url
 	 * @param string $data
 	 * @param string $options
 	 * @return void
 	 */
-	public function send($path = null, $data = null, $options = array()) {
-		$defaults = array('via' => 'header');
+	public function send($method, $path = null, $data = null, array $options = array()) {
+		$defaults = array('via' => 'headers');
 		$options += $defaults;
 		$url = $this->config($path);
 		$method = !empty($data['method']) ? $data['method'] : 'post';
 		$data = $this->sign($data + compact('url'));
 
-		if ($options['via'] == 'header') {
-			$auth = 'OAuth realm="",';
+		if ($options['via'] == 'headers') {
+			$auth = 'OAuth realm="auth",';
 			foreach ($data as $key => $val) {
 				$auth .= $key . '="'.rawurlencode($val).'",';
-				$auth .= "\n";
 			}
 			$options['headers'] = array('Authorization' => $auth);
 			$data = array();
 		}
-		$response = $this->service->send($method, $url, $data, $options);
+		$response = parent::send($method, $url, $data, $options);
 
 		if (strpos($response, 'oauth_token=') !== false) {
 			return $this->_decode($response);
@@ -150,7 +150,7 @@ class Oauth extends \lithium\core\Object {
 			'token' => array('oauth_token' => null, 'oauth_token_secret' => null),
 		);
 		$options += $defaults;
-		$params = $this->_build($options['params'] + (array)$options['token']) + $options['data'];
+		$params = $this->_params($options['params'] + (array) $options['token']) + $options['data'];
 		$base = $this->_base($options['method'], $options['url'], $params);
 		$key = join("&", array(
 			rawurlencode($options['oauth_consumer_secret']),
@@ -182,11 +182,7 @@ class Oauth extends \lithium\core\Object {
 			$query[] = $key . '=' . rawurlencode($value);
 		});
 		$path = $this->url($url);
-		$base = join("&", array(
-			$method, rawurlencode($path),
-			rawurlencode(join('&', $query))
-		));
-		return $base;
+		return join("&", array($method, rawurlencode($path), rawurlencode(join('&', $query))));
 	}
 
 	/**
@@ -195,7 +191,7 @@ class Oauth extends \lithium\core\Object {
 	 * @param string $params
 	 * @return void
 	 */
-	protected function _build($params = array()) {
+	protected function _params($params = array()) {
 		$defaults =  array(
 			'oauth_consumer_key' => 'key',
 			'oauth_nonce' => sha1(time() . mt_rand()),

@@ -8,8 +8,6 @@
 
 namespace li3_oauth\models;
 
-use \li3_oauth\extensions\service\Oauth;
-
 class Consumer extends \lithium\core\StaticObject {
 
 	/**
@@ -18,6 +16,10 @@ class Consumer extends \lithium\core\StaticObject {
 	 * @see \li3_oauth\extensions\services\Oauth
 	 */
 	protected static $_service = null;
+
+	protected static $_classes = array(
+		'oauth' => '\li3_oauth\extensions\service\Oauth'
+	);
 
 	/**
 	 * Configure the Consumer to access the Oauth service layer
@@ -43,7 +45,11 @@ class Consumer extends \lithium\core\StaticObject {
 	 * @return void
 	 */
 	public static function config($config) {
-		static::$_service = new Oauth($config);
+		static::$_service = new static::$_classes['oauth']($config);
+	}
+
+	public static function __callStatic($method, $params) {
+		return static::$_service->invokeMethod($method, $params);
 	}
 
 	/**
@@ -52,7 +58,7 @@ class Consumer extends \lithium\core\StaticObject {
 	 * @param array $options optional params for the request
 	 * @return string
 	 */
-	public static function request($params = array(), $options = array()) {
+	public static function token($type, $params = array(), $options = array()) {
 		return static::$_service->send('request_token', $params + array(
 			'hash' => 'HMAC-SHA1', 'method' => 'POST'
 		), $options);
