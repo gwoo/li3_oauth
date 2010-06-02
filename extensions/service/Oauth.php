@@ -46,8 +46,8 @@ class Oauth extends \lithium\net\http\Service {
 			'host' => 'localhost',
 			'authorize' => '/oauth/authorize',
 			'authenticate' => '/oauth/authenticate',
-			'request_token' => '/oauth/request_token',
-			'access_token' => '/oauth/access_token',
+			'request' => '/oauth/request_token',
+			'access' => '/oauth/access_token',
 			'oauth_consumer_key' => 'key',
 			'oauth_consumer_secret' => 'secret'
 		);
@@ -97,16 +97,15 @@ class Oauth extends \lithium\net\http\Service {
 	 * @return void
 	 */
 	public function send($method, $path = null, $data = null, array $options = array()) {
-		$defaults = array('via' => 'headers');
+		$defaults = array('headers' => true, 'realm' => basename(LITHIUM_APP_PATH));
 		$options += $defaults;
 		$url = $this->config($path);
-		$method = !empty($data['method']) ? $data['method'] : 'post';
-		$data = $this->sign($data + compact('url'));
+		$data = $this->sign($data + $options + compact('url'));
 
-		if ($options['via'] == 'headers') {
-			$auth = 'OAuth realm="auth",';
+		if ($options['headers']) {
+			$auth = 'OAuth realm="' . $options['realm'] . '",';
 			foreach ($data as $key => $val) {
-				$auth .= $key . '="'.rawurlencode($val).'",';
+				$auth .= $key . '="' . rawurlencode($val) . '",';
 			}
 			$options['headers'] = array('Authorization' => $auth);
 			$data = array();
@@ -120,31 +119,38 @@ class Oauth extends \lithium\net\http\Service {
 	}
 
 	/**
-	 * undocumented function
+	 * A utility method to return a authorize or authenticate url for redirect
 	 *
 	 * @param string $url
 	 * @return void
 	 */
-	public function url($url) {
-		$url = $this->config($url);
-		return "http://{$this->_config['host']}{$url}";
+	public function url($url = null, $token = array()) {
+		$url = $url ? $this->config($url) : null;
+
+		if (!empty($token['oauth_token'])) {
+			$url = "{$url}?oauth_token={$token['oauth_token']}";
+		}
+
+		return "http://"  . str_replace('//', '/', "{$this->_config['host']}/{$url}");
 	}
 
 	/**
-	 * undocumented function
+	 * Sign the request
 	 *
 	 * @param string $options
-	 *               - hash: HMAC-SHA1
+	 *               - method: POST
+	 *               - url: url of request
+	 *               - oauth_signature_method: HMAC-SHA1
 	 *               - secret: config['oauth_consumer_secret']
 	 *               - params: extra params for to sign request
-	 *               - url: url of request
 	 *               - data: post data for request
 	 *               - token: array with keys oauth_token, oauth_token_secret
 	 * @return void
 	 */
 	public function sign($options = array()) {
 		$defaults = array(
-			'url' => '', 'method' => 'POST', 'hash' => 'HMAC-SHA1',
+			'url' => '', 'method' => 'POST',
+			'oauth_signature_method' => 'HMAC-SHA1',
 			'oauth_consumer_secret' => $this->_config['oauth_consumer_secret'],
 			'params' => array(), 'data' => array(),
 			'token' => array('oauth_token' => null, 'oauth_token_secret' => null),
@@ -152,11 +158,12 @@ class Oauth extends \lithium\net\http\Service {
 		$options += $defaults;
 		$params = $this->_params($options['params'] + (array) $options['token']) + $options['data'];
 		$base = $this->_base($options['method'], $options['url'], $params);
+
 		$key = join("&", array(
 			rawurlencode($options['oauth_consumer_secret']),
 			rawurlencode($options['token']['oauth_token_secret'])
 		));
-		switch ($options['hash']) {
+		switch ($options['oauth_signature_method']) {
 			case 'HMAC-SHA1':
 				$signature = base64_encode(hash_hmac('sha1', $base, $key, true));
 			break;
@@ -186,10 +193,10 @@ class Oauth extends \lithium\net\http\Service {
 	}
 
 	/**
-	 * undocumented function
+	 * Handles Oauth specific parameters to ensure they have correct values and order.
 	 *
 	 * @param string $params
-	 * @return void
+	 * @return array $params
 	 */
 	protected function _params($params = array()) {
 		$defaults =  array(
@@ -219,7 +226,7 @@ class Oauth extends \lithium\net\http\Service {
 	}
 
 	/**
-	 * undocumented function
+	 * Decodes the response.
 	 *
 	 * @param string $path
 	 * @return void

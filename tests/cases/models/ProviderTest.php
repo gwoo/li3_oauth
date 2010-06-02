@@ -58,7 +58,7 @@ class ProviderTest extends \lithium\test\Unit {
 
 	public function testVerify() {
 		$request = array(
-			'url' => 'request_token',
+			'url' => 'request',
 			'params' => array(
 				'oauth_consumer_key' => 'key',
 				'oauth_nonce' => '4d31073c8ce205ecd3145d6cc0a3a4f6',
@@ -73,7 +73,7 @@ class ProviderTest extends \lithium\test\Unit {
 
 	public function testVerifyWithToken() {
 		$request = array(
-			'url' => 'request_token',
+			'url' => 'request',
 			'params' => array(
 				'oauth_consumer_key' => 'key',
 				'oauth_nonce' => '4d31073c8ce205ecd3145d6cc0a3a4f6',

@@ -55,6 +55,9 @@ class MockSocket extends \lithium\net\Socket {
 		if (strpos($message->path, 'access_token') !== false) {
 			$body = 'oauth_token=accesskey&oauth_token_secret=accesssecret';
 		}
+		if (strpos($message->path, 'search') !== false) {
+			$body = json_encode(array('test' => 'cool'));
+		}
 		$message = $this->read($body);
 		return new $options['classes']['response'](compact('message'));
 	}

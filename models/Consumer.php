@@ -59,35 +59,9 @@ class Consumer extends \lithium\core\StaticObject {
 	 * @return string
 	 */
 	public static function token($type, $params = array(), $options = array()) {
-		return static::$_service->send('request_token', $params + array(
-			'hash' => 'HMAC-SHA1', 'method' => 'POST'
-		), $options);
-	}
-
-	/**
-	 * Signs and Sends request to access token endpoint with the token returned from request method
-	 *
-	 * @param array $token return value from `Consumer::request()`
-	 * @return string
-	 */
-	public static function access($token, $params = array(), $options = array()) {
-		return static::$_service->send('access_token', $params + array(
-			'hash' => 'HMAC-SHA1', 'method' => 'POST', 'token' => (array) $token,
-		), $options);
-	}
-
-	/**
-	 * Signs and Sends a post request to the given url
-	 *
-	 * @param string $url request path that follows host: eg `/statues/update.json`
-	 * @param array $token the token from a request
-	 * @param array $data data to send as the body of the request
-	 * @return string
-	 */
-	public static function post($url, $token, $data = array(), $params = array(), $options = array()) {
-		return static::$_service->send($url, $params + array(
-			'hash' => 'HMAC-SHA1', 'method' => 'POST', 'token' => (array) $token, 'data' => $data
-		), $options);
+		$defaults = array('method' => 'POST', 'oauth_signature_method' => 'HMAC-SHA1');
+		$options += $defaults;
+		return static::$_service->send($options['method'], $type, $params, $options);
 	}
 
 	/**
@@ -97,14 +71,7 @@ class Consumer extends \lithium\core\StaticObject {
 	 * @return string
 	 */
 	public static function authorize($token) {
-		$url = static::$_service->url('authorize');
-		if (is_array($token)) {
-			if (empty($token['oauth_token'])) {
-				return $url;
-			}
-			$token = $token['oauth_token'];
-		}
-		return "{$url}?oauth_token={$token}";
+		return static::$_service->url('authorize', $token);
 	}
 
 	/**
@@ -114,14 +81,7 @@ class Consumer extends \lithium\core\StaticObject {
 	 * @return string
 	 */
 	public static function authenticate($token) {
-		$url = static::$_service->url('authenticate');
-		if (is_array($token)) {
-			if (empty($token['oauth_token'])) {
-				return $url;
-			}
-			$token = $token['oauth_token'];
-		}
-		return "{$url}?oauth_token={$token}";
+		return static::$_service->url('authenticate', $token);
 	}
 
 	/**

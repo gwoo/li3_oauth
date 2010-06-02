@@ -22,7 +22,8 @@ class OauthTest extends \lithium\test\Unit {
 		'login' => 'root',
 		'password' => '',
 		'port' => 80,
-		'timeout' => 1
+		'timeout' => 1,
+		'oauth_consumer_secret' => 'secret'
 	);
 
 	public function testDefaultConfig() {
@@ -30,17 +31,17 @@ class OauthTest extends \lithium\test\Unit {
 		$config = $oauth->config();
 
 		$expected = '/oauth/request_token';
-		$result = $config['request_token'];
+		$result = $config['request'];
 		$this->assertEqual($expected, $result);
 	}
 
 	public function testCustomConfig() {
-		$this->_testConfig['request_token'] = 'request_token.php';
+		$this->_testConfig['request'] = 'request_token.php';
 		$oauth = new MockOauth($this->_testConfig);
 		$config = $oauth->config();
 
 		$expected = 'request_token.php';
-		$result = $config['request_token'];
+		$result = $config['request'];
 		$this->assertEqual($expected, $result);
 	}
 
@@ -59,9 +60,7 @@ class OauthTest extends \lithium\test\Unit {
 			'oauth_token' => 'requestkey',
 			'oauth_token_secret' => 'requestsecret'
 		);
-		$result = $oauth->post('request_token', array(
-			'hash' => 'HMAC-SHA1', 'params' => array()
-		));
+		$result = $oauth->post('request');
 		$this->assertEqual($expected, $result);
 	}
 
@@ -72,8 +71,8 @@ class OauthTest extends \lithium\test\Unit {
 			'oauth_token' => 'accesskey',
 			'oauth_token_secret' => 'accesssecret'
 		);
-		$result = $oauth->post('access_token', array(
-			'hash' => 'HMAC-SHA1', 'params' => array(),
+		$result = $oauth->post('access', array(
+			'params' => array(),
 			'token' => array(
 				'oauth_token' => 'requestkey',
 				'oauth_token_secret' => 'requestsecret'
@@ -85,9 +84,25 @@ class OauthTest extends \lithium\test\Unit {
 	public function testConfigUrl() {
 		$oauth = new MockOauth($this->_testConfig);
 		$expected = 'http://localhost';
-		$result = $oauth->url('');
+		$result = $oauth->url();
 		$this->assertEqual($expected, $result);
+	}
 
+	public function testSign() {
+		$oauth = new MockOauth($this->_testConfig);
+		$params =  array(
+			'oauth_signature_method' => 'HMAC-SHA1',
+			'params' => array(
+				'oauth_consumer_key' => 'key',
+				'oauth_nonce' => '4d31073c8ce205ecd3145d6cc0a3a4f6',
+				'oauth_timestamp' => '1259606608',
+			),
+		);
+		$params = $oauth->sign($params);
+
+		$expected = 'FRBjLiJQEDyekFLxtK2EaoSDFOU=';
+		$result = $params['oauth_signature'];
+		$this->assertEqual($expected, $result);
 	}
 }
 ?>
