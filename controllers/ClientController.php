@@ -39,14 +39,14 @@ class ClientController extends \lithium\action\Controller {
 		}
 		if (!empty($this->request->data)) {
 			$url = '/statuses/update.json';
-			$result = Consumer::post($url, $token, $this->request->data);
+			$result = Consumer::post($url, $this->request->data, compact('token'));
 			$message = json_decode($result);
 		}
 		return compact('message');
 	}
 
 	public function authorize() {
-		$token = Consumer::request();
+		$token = Consumer::token('request');
 		if (is_array($token) && !empty($token['oauth_token'])) {
 			$token += array(
 				'oauth_callback_url' => 'http://' .
@@ -56,13 +56,12 @@ class ClientController extends \lithium\action\Controller {
 			Session::write('oauth.request', $token);
 			$this->redirect(Consumer::authorize($token));
 		}
-
 		return (string) $token;
 	}
 
 	public function access() {
 		$token = Session::read('oauth.request');
-		$access = Consumer::access((array) $token);
+		$access = Consumer::token('access', $token);
 		Session::write('oauth.access', $access);
 		$this->redirect(array('controller' => 'client', 'action' => 'index'));
 	}

@@ -15,9 +15,9 @@ class MockStorage extends \lithium\net\http\Service {
 	public function read() {
 		return $this->_data;
 	}
-	
+
 	public function write($data, $options = array()) {
-		$this->_data - $data;
+		$this->_data = $data;
 	}
 
 }

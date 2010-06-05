@@ -88,19 +88,21 @@ class Oauth extends \lithium\net\http\Service {
 	}
 
 	/**
-	 * Send request
+	 * Send request with the given options and data. The token should be part of the options.
 	 *
 	 * @param string $method
 	 * @param string $url
-	 * @param string $data
-	 * @param string $options
+	 * @param array $data encoded for the request
+	 * @param array $options oauth parameters
+	 *              - headers : send parameters in the header. (default: true)
+	 *              - realm : the realm to authenticate. (default: app directory name)
 	 * @return void
 	 */
-	public function send($method, $path = null, $data = null, array $options = array()) {
+	public function send($method, $path = null, $data = array(), array $options = array()) {
 		$defaults = array('headers' => true, 'realm' => basename(LITHIUM_APP_PATH));
 		$options += $defaults;
 		$url = $this->config($path);
-		$data = $this->sign($data + $options + compact('url'));
+		$data = $this->sign($options + compact('data', 'url'));
 
 		if ($options['headers']) {
 			$auth = 'OAuth realm="' . $options['realm'] . '",';
@@ -156,7 +158,8 @@ class Oauth extends \lithium\net\http\Service {
 			'token' => array('oauth_token' => null, 'oauth_token_secret' => null),
 		);
 		$options += $defaults;
-		$params = $this->_params($options['params'] + (array) $options['token']) + $options['data'];
+		$params = $this->_params((array) $options['params'] + (array) $options['token'])
+			+ (array) $options['data'];
 		$base = $this->_base($options['method'], $options['url'], $params);
 
 		$key = join("&", array(
@@ -208,6 +211,7 @@ class Oauth extends \lithium\net\http\Service {
 			'oauth_version' => '1.0'
 		);
 		$result = array();
+
 		foreach ($defaults as $key => $value) {
 			if (isset($params[$key])) {
 				$result[$key] = $params[$key];

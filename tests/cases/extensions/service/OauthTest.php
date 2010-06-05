@@ -36,8 +36,9 @@ class OauthTest extends \lithium\test\Unit {
 	}
 
 	public function testCustomConfig() {
-		$this->_testConfig['request'] = 'request_token.php';
-		$oauth = new MockOauth($this->_testConfig);
+		$config = $this->_testConfig;
+		$config['request'] = 'request_token.php';
+		$oauth = new MockOauth($config);
 		$config = $oauth->config();
 
 		$expected = 'request_token.php';
@@ -71,7 +72,7 @@ class OauthTest extends \lithium\test\Unit {
 			'oauth_token' => 'accesskey',
 			'oauth_token_secret' => 'accesssecret'
 		);
-		$result = $oauth->post('access', array(
+		$result = $oauth->post('access', array('message' => 'hello'), array(
 			'params' => array(),
 			'token' => array(
 				'oauth_token' => 'requestkey',
@@ -83,9 +84,19 @@ class OauthTest extends \lithium\test\Unit {
 
 	public function testConfigUrl() {
 		$oauth = new MockOauth($this->_testConfig);
-		$expected = 'http://localhost';
+		$expected = 'http://localhost/';
 		$result = $oauth->url();
 		$this->assertEqual($expected, $result);
+
+		$expected = 'http://localhost/oauth/request_token';
+		$result = $oauth->url('request');
+		$this->assertEqual($expected, $result);
+
+
+		$expected = 'http://localhost/oauth/access_token';
+		$result = $oauth->url('access');
+		$this->assertEqual($expected, $result);
+
 	}
 
 	public function testSign() {
@@ -100,7 +111,7 @@ class OauthTest extends \lithium\test\Unit {
 		);
 		$params = $oauth->sign($params);
 
-		$expected = 'FRBjLiJQEDyekFLxtK2EaoSDFOU=';
+		$expected = '/dSMA1m+uXGoWB0lV/ncn1S+hBw=';
 		$result = $params['oauth_signature'];
 		$this->assertEqual($expected, $result);
 	}

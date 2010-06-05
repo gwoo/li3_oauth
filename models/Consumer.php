@@ -48,6 +48,13 @@ class Consumer extends \lithium\core\StaticObject {
 		static::$_service = new static::$_classes['oauth']($config);
 	}
 
+	/**
+	 * Magic method to pass through HTTP methods. i.e.`Consumer::post()`
+	 *
+	 * @param string $method
+	 * @param string $params
+	 * @return mixed
+	 */
 	public static function __callStatic($method, $params) {
 		return static::$_service->invokeMethod($method, $params);
 	}
@@ -58,10 +65,10 @@ class Consumer extends \lithium\core\StaticObject {
 	 * @param array $options optional params for the request
 	 * @return string
 	 */
-	public static function token($type, $params = array(), $options = array()) {
+	public static function token($type, $options = array()) {
 		$defaults = array('method' => 'POST', 'oauth_signature_method' => 'HMAC-SHA1');
 		$options += $defaults;
-		return static::$_service->send($options['method'], $type, $params, $options);
+		return static::$_service->send($options['method'], $type, array(), $options);
 	}
 
 	/**
