@@ -17,8 +17,8 @@ class ServerController extends \lithium\action\Controller {
 		parent::_init();
 		Provider::config(array(
 			'host' => $this->request->env('SERVER_NAME'),
-			'request_token' => $this->request->env('base') . '/oauth/request_token',
-			'access_token' => $this->request->env('base') . '/oauth/request_token',
+			'request' => $this->request->env('base') . '/oauth/request_token',
+			'access' => $this->request->env('base') . '/oauth/access_token',
 			'authorize' => $this->request->env('base') . '/oauth/authorize',
 			'port' => 30501
 		));

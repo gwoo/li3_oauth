@@ -19,8 +19,8 @@ class ClientController extends \lithium\action\Controller {
 			'host' => $this->request->env('SERVER_NAME'),
 			'oauth_consumer_key' => '59f87a2f8e430bbad5c84b61ed06304fc9204bcb',
 			'oauth_consumer_secret' => '4b498c24588bc56685e68f0d2c52ee6becf96ba3',
-			'request_token' => $this->request->env('base') . '/oauth/request_token',
-			'access_token' => $this->request->env('base') . '/oauth/request_token',
+			'request' => $this->request->env('base') . '/oauth/request_token',
+			'access' => $this->request->env('base') . '/oauth/access_token',
 			'authorize' => $this->request->env('base') . '/oauth/authorize',
 			'port' => 30501
 		));
