@@ -44,6 +44,7 @@ class Oauth extends \lithium\net\http\Service {
 	public function __construct($config = array()) {
 		$defaults = array(
 			'host' => 'localhost',
+			'port' => 80,
 			'authorize' => '/oauth/authorize',
 			'authenticate' => '/oauth/authenticate',
 			'request' => '/oauth/request_token',
@@ -99,19 +100,26 @@ class Oauth extends \lithium\net\http\Service {
 	 * @return void
 	 */
 	public function send($method, $path = null, $data = array(), array $options = array()) {
-		$defaults = array('headers' => true, 'realm' => basename(LITHIUM_APP_PATH));
+		$defaults = array(
+			'headers' => true, 
+			'realm' => basename(LITHIUM_APP_PATH), 
+			'method' => $method, 
+			'port' => $this->_config['port']
+		);
 		$options += $defaults;
 		$url = $this->config($path);
-		$data = $this->sign($options + compact('data', 'url'));
+		$oauth = $this->sign($options + compact('data', 'url'));
 
 		if ($options['headers']) {
 			$auth = 'OAuth realm="' . $options['realm'] . '",';
-			foreach ($data as $key => $val) {
+			foreach ($oauth as $key => $val) {
 				$auth .= $key . '="' . rawurlencode($val) . '",';
 			}
 			$options['headers'] = array('Authorization' => $auth);
-			$data = array();
-		}
+			$oauth = array();
+		} 
+		$data += $oauth;
+
 		$response = parent::send($method, $url, $data, $options);
 
 		if (strpos($response, 'oauth_token=') !== false) {
@@ -133,7 +141,7 @@ class Oauth extends \lithium\net\http\Service {
 			$url = "{$url}?oauth_token={$token['oauth_token']}";
 		}
 
-		return "http://"  . str_replace('//', '/', "{$this->_config['host']}/{$url}");
+		return "http://"  . str_replace('//', '/', "{$this->_config['host']}:{$this->_config['port']}/{$url}");
 	}
 
 	/**
@@ -158,9 +166,8 @@ class Oauth extends \lithium\net\http\Service {
 			'token' => array('oauth_token' => null, 'oauth_token_secret' => null),
 		);
 		$options += $defaults;
-		$params = $this->_params((array) $options['params'] + (array) $options['token'])
-			+ (array) $options['data'];
-		$base = $this->_base($options['method'], $options['url'], $params);
+		$params = $this->_params((array) $options['params'] + (array) $options['token']);
+		$base = $this->_base($options['method'], $options['url'], ($params + (array) $options['data']));
 
 		$key = join("&", array(
 			rawurlencode($options['oauth_consumer_secret']),
@@ -187,12 +194,13 @@ class Oauth extends \lithium\net\http\Service {
 	 * @return void
 	 */
 	protected function _base($method, $url, $params) {
+		uksort($params, 'strcmp');
 		$query = array();
 		array_walk($params, function ($value, $key) use (&$query){
 			$query[] = $key . '=' . rawurlencode($value);
 		});
 		$path = $this->url($url);
-		return join("&", array($method, rawurlencode($path), rawurlencode(join('&', $query))));
+		return join("&", array(strtoupper($method), rawurlencode($path), rawurlencode(join('&', $query))));
 	}
 
 	/**

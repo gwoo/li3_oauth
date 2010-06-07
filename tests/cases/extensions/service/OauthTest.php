@@ -84,16 +84,16 @@ class OauthTest extends \lithium\test\Unit {
 
 	public function testConfigUrl() {
 		$oauth = new MockOauth($this->_testConfig);
-		$expected = 'http://localhost/';
+		$expected = 'http://localhost:80/';
 		$result = $oauth->url();
 		$this->assertEqual($expected, $result);
 
-		$expected = 'http://localhost/oauth/request_token';
+		$expected = 'http://localhost:80/oauth/request_token';
 		$result = $oauth->url('request');
 		$this->assertEqual($expected, $result);
 
 
-		$expected = 'http://localhost/oauth/access_token';
+		$expected = 'http://localhost:80/oauth/access_token';
 		$result = $oauth->url('access');
 		$this->assertEqual($expected, $result);
 
@@ -111,9 +111,25 @@ class OauthTest extends \lithium\test\Unit {
 		);
 		$params = $oauth->sign($params);
 
-		$expected = '/dSMA1m+uXGoWB0lV/ncn1S+hBw=';
+		$expected = 'jpQW675nV7uzAbW2jukVr/kfqDA=';
+		$result = $params['oauth_signature'];
+		$this->assertEqual($expected, $result);
+		
+		$params =  array(
+			'method' => 'GET',
+			'oauth_signature_method' => 'HMAC-SHA1',
+			'params' => array(
+				'oauth_consumer_key' => 'key',
+				'oauth_nonce' => '4d31073c8ce205ecd3145d6cc0a3a4f6',
+				'oauth_timestamp' => '1259606608',
+			),
+		);
+		$params = $oauth->sign($params);
+
+		$expected = 'LbeBxtQ9vXOxK6eZgKXBFqIWN7A=';
 		$result = $params['oauth_signature'];
 		$this->assertEqual($expected, $result);
 	}
+
 }
 ?>
