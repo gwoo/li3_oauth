@@ -58,20 +58,6 @@ class Oauth extends \lithium\net\http\Service {
 	}
 
 	/**
-	 * Initialize classes to be used
-	 *
-	 * @return void
-	 */
-	public function _init() {
-		parent::_init();
-		$config = $this->_config;
-
-		if (!empty($config['proxy'])) {
-			$config['host'] = $config['proxy'];
-		}
-	}
-
-	/**
 	 * If a key is set returns the value of that key
 	 * Without a key it will return config array
 	 *
@@ -110,10 +96,12 @@ class Oauth extends \lithium\net\http\Service {
 			$header = 'OAuth realm="' . $options['realm'] . '",';
 			foreach ($oauth as $key => $val) {
 				$header .= $key . '="' . rawurlencode($val) . '",';
+				unset($oauth[$key]);
 			}
 			$options['headers'] = array('Authorization' => $header);
 		}
 		$data += $oauth;
+
 		$response = parent::send($method, $url, $data, $options);
 
 		if (strpos($response, 'oauth_token=') !== false) {
