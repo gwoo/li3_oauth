@@ -85,15 +85,15 @@ class OauthTest extends \lithium\test\Unit {
 	public function testConfigUrl() {
 		$oauth = new MockOauth($this->_testConfig);
 		$expected = 'http://localhost:80/';
-		$result = $oauth->url();
+		$result = $oauth->url(null, array('usePort' => true));
 		$this->assertEqual($expected, $result);
 
-		$expected = 'http://localhost:80/oauth/request_token';
+		$expected = 'http://localhost/oauth/request_token';
 		$result = $oauth->url('request');
 		$this->assertEqual($expected, $result);
 
 
-		$expected = 'http://localhost:80/oauth/access_token';
+		$expected = 'http://localhost/oauth/access_token';
 		$result = $oauth->url('access');
 		$this->assertEqual($expected, $result);
 
@@ -102,6 +102,7 @@ class OauthTest extends \lithium\test\Unit {
 	public function testSign() {
 		$oauth = new MockOauth($this->_testConfig);
 		$params =  array(
+			'method' => 'POST',
 			'oauth_signature_method' => 'HMAC-SHA1',
 			'params' => array(
 				'oauth_consumer_key' => 'key',
@@ -111,10 +112,10 @@ class OauthTest extends \lithium\test\Unit {
 		);
 		$params = $oauth->sign($params);
 
-		$expected = 'jpQW675nV7uzAbW2jukVr/kfqDA=';
+		$expected = '/dSMA1m+uXGoWB0lV/ncn1S+hBw=';
 		$result = $params['oauth_signature'];
 		$this->assertEqual($expected, $result);
-		
+
 		$params =  array(
 			'method' => 'GET',
 			'oauth_signature_method' => 'HMAC-SHA1',
@@ -126,10 +127,31 @@ class OauthTest extends \lithium\test\Unit {
 		);
 		$params = $oauth->sign($params);
 
-		$expected = 'LbeBxtQ9vXOxK6eZgKXBFqIWN7A=';
+		$expected = 'zR1UlutzIhXqWOnf9drJ+koTzMc=';
 		$result = $params['oauth_signature'];
 		$this->assertEqual($expected, $result);
 	}
 
+	public function testSignAgain() {
+		$this->_testConfig += array(
+			'request' => 'libraries/oauth_php/example/request_token.php',
+		);
+		$oauth = new MockOauth($this->_testConfig);
+		$params =  array(
+			'method' => 'POST', 'url' => 'request',
+			'oauth_signature_method' => 'HMAC-SHA1',
+			'params' => array(
+				'oauth_consumer_key' => 'key',
+				'oauth_nonce' => 'eaa196ab3a032e7b2e55d2b3ea21a13d99f1175e',
+				'oauth_timestamp' => '1276360894',
+			),
+		);
+		$params = $oauth->sign($params);
+
+		$expected = 'DkFQvURKybQqwkQsf2cASQeJdtU=';
+		$result = $params['oauth_signature'];
+		$this->assertEqual($expected, $result);
+	}
 }
+
 ?>
