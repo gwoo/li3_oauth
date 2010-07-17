@@ -100,9 +100,7 @@ class Oauth extends \lithium\net\http\Service {
 			}
 			$options['headers'] = array('Authorization' => $header);
 		}
-		$data += $oauth;
-
-		$response = parent::send($method, $url, $data, $options);
+		$response = parent::send($method, $url, $data + $oauth, $options);
 
 		if (strpos($response, 'oauth_token=') !== false) {
 			return $this->_decode($response);
@@ -237,15 +235,8 @@ class Oauth extends \lithium\net\http\Service {
 	 * @return void
 	 */
 	protected function _decode($query = null) {
-		$token = array();
-		$result = array_filter(explode('&', $query), function ($value) use (&$token) {
-			$parts = explode("=", $value);
-			if (count($parts) > 1) {
-				$token[rawurldecode($parts[0])] = rawurldecode($parts[1]);
-			}
-			return false;
-		});
-		return $token;
+		parse_str($query, $data);
+		return $data;
 	}
 }
 
