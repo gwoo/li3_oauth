@@ -43,7 +43,9 @@ class Oauth extends \lithium\net\http\Service {
 	 */
 	public function __construct($config = array()) {
 		$defaults = array(
+			'scheme' => 'http',
 			'host' => 'localhost',
+			'proxy' => false,
 			'port' => 80,
 			'authorize' => '/oauth/authorize',
 			'authenticate' => '/oauth/authenticate',
@@ -87,8 +89,7 @@ class Oauth extends \lithium\net\http\Service {
 	 */
 	public function send($method, $path = null, $data = array(), array $options = array()) {
 		$defaults = array('headers' => true, 'realm' => basename(LITHIUM_APP_PATH));
-		$options += $defaults;
-
+		$options += $defaults + $this->_config;
 		$url = $this->config($path);
 		$oauth = $this->sign($options + compact('data', 'url', 'method'));
 
@@ -100,6 +101,7 @@ class Oauth extends \lithium\net\http\Service {
 			}
 			$options['headers'] = array('Authorization' => $header);
 		}
+		$options['host'] = $options['proxy'] ? $options['proxy'] : $options['host'];
 		$response = parent::send($method, $url, $data + $oauth, $options);
 
 		if (strpos($response, 'oauth_token=') !== false) {
@@ -127,7 +129,7 @@ class Oauth extends \lithium\net\http\Service {
 		}
 		$base = $this->_config['host'];
 		$base .= ($options['usePort']) ? ":{$this->_config['port']}" : null;
-		return "http://" . str_replace('//', '/', "{$base}/{$url}");
+		return "{$this->_config['scheme']}://" . str_replace('//', '/', "{$base}/{$url}");
 	}
 
 	/**

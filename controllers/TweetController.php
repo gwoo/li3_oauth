@@ -1,46 +1,46 @@
 <?php
-/**
- * Lithium: the most rad php framework
- *
- * @copyright     Copyright 2009, Union of RAD (http://union-of-rad.org)
- * @license       http://opensource.org/licenses/bsd-license.php The BSD License
- */
 
 namespace li3_oauth\controllers;
 
 use \li3_oauth\models\Consumer;
 use \lithium\storage\Session;
 
-class ClientController extends \lithium\action\Controller {
+class TweetController extends \lithium\action\Controller {
 
 	protected function _init() {
 		parent::_init();
 		Consumer::config(array(
-			'host' => $this->request->env('SERVER_NAME'),
-			'oauth_consumer_key' => '59f87a2f8e430bbad5c84b61ed06304fc9204bcb',
-			'oauth_consumer_secret' => '4b498c24588bc56685e68f0d2c52ee6becf96ba3',
-			'request' => $this->request->env('base') . '/oauth/request_token',
-			'access' => $this->request->env('base') . '/oauth/access_token',
-			'authorize' => $this->request->env('base') . '/oauth/authorize',
-			'port' => 30501
+			'host' => 'twitter.com',
+			'oauth_consumer_key' => '',
+			'oauth_consumer_secret' => '',
 		));
 	}
 
 	public function index() {
 		$message = null;
 		$token = Session::read('oauth.access');
-		if (empty($token) && !empty($this->request->query['oauth_token'])) {
-			$this->redirect('Client::access');
-		}
 
+		if (empty($token) && !empty($this->request->query['oauth_token'])) {
+			$this->redirect(array('controller' => 'tweet', 'action' => 'access'));
+		}
 		if (empty($token)) {
-			$this->redirect('Client::authorize');
+			$this->redirect(array('controller' => 'tweet', 'action' => 'authorize'));
+		}
+		if (!empty($this->request->data)) {
+			$result = Consumer::post('/statuses/update.json',
+				$this->request->data,
+				compact('token')
+			);
+			$message = json_decode($result);
 		}
 		return compact('message');
 	}
 
 	public function authorize() {
 		$token = Consumer::token('request');
+		if (is_string($token)) {
+			return $token;
+		}
 		Session::write('oauth.request', $token);
 		$this->redirect(Consumer::authorize($token));
 	}
@@ -49,13 +49,13 @@ class ClientController extends \lithium\action\Controller {
 		$token = Session::read('oauth.request');
 		$access = Consumer::token('access', $token);
 		Session::write('oauth.access', $access);
-		$this->redirect('Client::index');
+		$this->redirect('Tweet::index');
 	}
 
 	public function login() {
 		$token = Session::read('oauth.request');
 		if (empty($token)) {
-			$this->redirect('Client::authorize');
+			$this->redirect('Tweet::authorize');
 		}
 		$this->redirect(Consumer::authenticate($token));
 	}
