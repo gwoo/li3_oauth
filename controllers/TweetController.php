@@ -21,10 +21,10 @@ class TweetController extends \lithium\action\Controller {
 		$token = Session::read('oauth.access');
 
 		if (empty($token) && !empty($this->request->query['oauth_token'])) {
-			$this->redirect(array('controller' => 'tweet', 'action' => 'access'));
+			$this->redirect('Tweet::access');
 		}
 		if (empty($token)) {
-			$this->redirect(array('controller' => 'tweet', 'action' => 'authorize'));
+			$this->redirect('Tweet::authorize');
 		}
 		if (!empty($this->request->data)) {
 			$result = Consumer::post('/statuses/update.json',
@@ -47,7 +47,7 @@ class TweetController extends \lithium\action\Controller {
 
 	public function access() {
 		$token = Session::read('oauth.request');
-		$access = Consumer::token('access', $token);
+		$access = Consumer::token('access', compact('token'));
 		Session::write('oauth.access', $access);
 		$this->redirect('Tweet::index');
 	}

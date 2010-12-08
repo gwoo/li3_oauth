@@ -41,13 +41,19 @@ class ClientController extends \lithium\action\Controller {
 
 	public function authorize() {
 		$token = Consumer::token('request');
+		if (is_string($token)) {
+			return $token;
+		}
 		Session::write('oauth.request', $token);
 		$this->redirect(Consumer::authorize($token));
 	}
 
 	public function access() {
 		$token = Session::read('oauth.request');
-		$access = Consumer::token('access', $token);
+		$access = Consumer::token('access', compact('token'));
+		if (is_string($token)) {
+			return $token;
+		}
 		Session::write('oauth.access', $access);
 		$this->redirect('Client::index');
 	}

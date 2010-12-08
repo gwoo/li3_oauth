@@ -68,7 +68,7 @@ class Consumer extends \lithium\core\StaticObject {
 	 *              - `oauth_signature_method`: HMAC-SHA1
 	 * @return string
 	 */
-	public static function token($type, $options = array()) {
+	public static function token($type, array $options = array()) {
 		$defaults = array('method' => 'POST', 'oauth_signature_method' => 'HMAC-SHA1');
 		$options += $defaults;
 		return static::$_service->send($options['method'], $type, array(), $options);
@@ -78,20 +78,22 @@ class Consumer extends \lithium\core\StaticObject {
 	 * get url from remote authorization endpoint along with request params
 	 *
 	 * @param array $token
+	 * @param array $options
 	 * @return string
 	 */
-	public static function authorize(array $token = array()) {
-		return static::$_service->url('authorize', compact('token'));
+	public static function authorize(array $token, array $options = array()) {
+		return static::$_service->url('authorize', compact('token') + $options);
 	}
 
 	/**
 	 * get url from remote authenticated endpoint along with token
 	 *
 	 * @param array $token
+	 * @param array $options
 	 * @return string
 	 */
-	public static function authenticate(array $token = array()) {
-		return static::$_service->url('authenticate', compact('token'));
+	public static function authenticate(array $token, array $options = array()) {
+		return static::$_service->url('authenticate', compact('token') + $options);
 	}
 
 	/**
