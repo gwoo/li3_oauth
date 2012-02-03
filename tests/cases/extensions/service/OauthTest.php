@@ -8,13 +8,13 @@
 
 namespace li3_oauth\tests\cases\extensions\service;
 
-use \li3_oauth\tests\mocks\extensions\service\MockOauth;
+use li3_oauth\tests\mocks\extensions\service\MockOauth;
 
 class OauthTest extends \lithium\test\Unit {
 
 	protected $_testConfig = array(
 		'classes' => array(
-			'socket' => '\li3_oauth\tests\mocks\extensions\service\MockSocket',
+			'socket' => '\li3_oauth\tests\mocks\extensions\service\MockSocket'
 		),
 		'persistent' => false,
 		'protocol' => 'http',
@@ -107,8 +107,8 @@ class OauthTest extends \lithium\test\Unit {
 			'params' => array(
 				'oauth_consumer_key' => 'key',
 				'oauth_nonce' => '4d31073c8ce205ecd3145d6cc0a3a4f6',
-				'oauth_timestamp' => '1259606608',
-			),
+				'oauth_timestamp' => '1259606608'
+			)
 		);
 		$params = $oauth->sign($params);
 
@@ -122,8 +122,8 @@ class OauthTest extends \lithium\test\Unit {
 			'params' => array(
 				'oauth_consumer_key' => 'key',
 				'oauth_nonce' => '4d31073c8ce205ecd3145d6cc0a3a4f6',
-				'oauth_timestamp' => '1259606608',
-			),
+				'oauth_timestamp' => '1259606608'
+			)
 		);
 		$params = $oauth->sign($params);
 
@@ -134,7 +134,7 @@ class OauthTest extends \lithium\test\Unit {
 
 	public function testSignAgain() {
 		$this->_testConfig += array(
-			'request' => 'libraries/oauth_php/example/request_token.php',
+			'request' => 'libraries/oauth_php/example/request_token.php'
 		);
 		$oauth = new MockOauth($this->_testConfig);
 		$params =  array(
@@ -143,8 +143,8 @@ class OauthTest extends \lithium\test\Unit {
 			'params' => array(
 				'oauth_consumer_key' => 'key',
 				'oauth_nonce' => 'eaa196ab3a032e7b2e55d2b3ea21a13d99f1175e',
-				'oauth_timestamp' => '1276360894',
-			),
+				'oauth_timestamp' => '1276360894'
+			)
 		);
 		$params = $oauth->sign($params);
 
