@@ -26,7 +26,7 @@ class Oauth extends \lithium\net\http\Service {
 		'media'    => '\lithium\net\http\Media',
 		'request'  => '\lithium\net\http\Request',
 		'response' => '\lithium\net\http\Response',
-		'socket'   => '\lithium\net\socket\Context',
+		'socket'   => '\lithium\net\socket\Context'
 	);
 
 	/**
@@ -151,7 +151,7 @@ class Oauth extends \lithium\net\http\Service {
 			'oauth_signature_method' => 'HMAC-SHA1',
 			'oauth_consumer_secret' => $this->_config['oauth_consumer_secret'],
 			'params' => array(), 'data' => array(),
-			'token' => array('oauth_token' => null, 'oauth_token_secret' => null),
+			'token' => array('oauth_token' => null, 'oauth_token_secret' => null)
 		);
 		$options += $defaults;
 		$params = $this->_params((array) $options['params'] + (array) $options['token']);

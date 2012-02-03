@@ -8,7 +8,7 @@
 
 namespace li3_oauth\tests\cases\models;
 
-use \li3_oauth\models\Provider;
+use li3_oauth\models\Provider;
 
 class ProviderTest extends \lithium\test\Unit {
 
@@ -16,7 +16,7 @@ class ProviderTest extends \lithium\test\Unit {
 		Provider::config(array(
 			'host' => 'localhost',
 			'oauth_consumer_key' => 'key',
-			'oauth_consumer_secret' => 'secret',
+			'oauth_consumer_secret' => 'secret'
 		));
 	}
 
@@ -64,7 +64,7 @@ class ProviderTest extends \lithium\test\Unit {
 				'oauth_nonce' => '4d31073c8ce205ecd3145d6cc0a3a4f6',
 				'oauth_signature' => 'GfCKugOKkspnq5ihgPR/9xxpf+E=',
 				'oauth_signature_method' => 'HMAC-SHA1', 'oauth_timestamp' => '1259606608',
-				'oauth_version' => '1.0',
+				'oauth_version' => '1.0'
 			)
 		);
 		$result = Provider::verify($request);
@@ -79,7 +79,7 @@ class ProviderTest extends \lithium\test\Unit {
 				'oauth_nonce' => '4d31073c8ce205ecd3145d6cc0a3a4f6',
 				'oauth_signature' => '10xRa+G7ql3KjDgZySmn5NqNLqQ=',
 				'oauth_signature_method' => 'HMAC-SHA1', 'oauth_timestamp' => '1259606608',
-				'oauth_version' => '1.0',
+				'oauth_version' => '1.0'
 			),
 			'token' => array(
 				'oauth_token' => 'request_token', 'oauth_token_secret' => 'request_secret'

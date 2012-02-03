@@ -8,7 +8,7 @@
 
 namespace li3_oauth\tests\cases\models;
 
-use \li3_oauth\models\Consumer;
+use li3_oauth\models\Consumer;
 
 class ConsumerTest extends \lithium\test\Unit {
 
@@ -73,7 +73,7 @@ class ConsumerTest extends \lithium\test\Unit {
 			'oauth_token_secret' => 'requestsecret'
 		);
 		Consumer::config(array('classes' => array(
-			'socket' => '\li3_oauth\tests\mocks\extensions\service\MockSocket',
+			'socket' => '\li3_oauth\tests\mocks\extensions\service\MockSocket'
 		)));
 		$result = Consumer::post('search', array(), compact('token'));
 		$this->assertEqual($expected, $result);

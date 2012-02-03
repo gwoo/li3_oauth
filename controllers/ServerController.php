@@ -8,8 +8,7 @@
 
 namespace li3_oauth\controllers;
 
-use \li3_oauth\models\Provider;
-use \lithium\storage\Session;
+use li3_oauth\models\Provider;
 
 class ServerController extends \lithium\action\Controller {
 
@@ -35,7 +34,7 @@ class ServerController extends \lithium\action\Controller {
 		}
 
 		$isValid = Provider::verify(array(
-			'params' => $this->request->data, 'url' => 'request_token',
+			'params' => $this->request->data, 'url' => 'request_token'
 		) + (array) $consumer);
 
 		if ($isValid) {
