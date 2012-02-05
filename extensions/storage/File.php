@@ -26,7 +26,7 @@ class File extends \lithium\core\Object {
 			return;
 		}
 		if ($this->_file[0] !== '/') {
-			$this->_file = LITHIUM_APP_PATH . '/resources/oauth/'. $this->_file;
+			$this->_file = LITHIUM_APP_PATH . '/resources/oauth/' . $this->_file;
 		}
 	}
 
@@ -79,4 +79,5 @@ class File extends \lithium\core\Object {
 		return file_put_contents($this->_file, $data);
 	}
 }
+
 ?>

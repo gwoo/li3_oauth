@@ -8,7 +8,7 @@
 
 namespace li3_oauth\models;
 
-use \li3_oauth\extensions\service\Oauth;
+use li3_oauth\extensions\service\Oauth;
 
 class Provider extends \lithium\core\StaticObject {
 
@@ -59,7 +59,7 @@ class Provider extends \lithium\core\StaticObject {
 	public static function create($type, $key = null, $secret = null) {
 		$key = $key ?: sha1(mt_rand());
 		$secret = $secret ?: sha1(mt_rand());
-		switch($type) {
+		switch ($type) {
 			case 'token':
 				return (object) array(
 					'oauth_token' => $key, 'oauth_token_secret' => $secret
@@ -77,7 +77,7 @@ class Provider extends \lithium\core\StaticObject {
 	/**
 	 * undocumented function
 	 *
-	 * @param string $query
+	 * @param string $request
 	 * @return void
 	 */
 	public static function verify($request) {

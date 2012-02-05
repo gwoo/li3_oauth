@@ -8,7 +8,7 @@
 
 namespace li3_oauth\tests\cases\extensions\storage;
 
-use \li3_oauth\extensions\storage\File;
+use li3_oauth\extensions\storage\File;
 
 class FileTest extends \lithium\test\Unit {
 
@@ -67,7 +67,6 @@ class FileTest extends \lithium\test\Unit {
 		$result = $this->file->read();
 		$this->assertEqual($expected, $result);
 	}
-
 }
 
 ?>

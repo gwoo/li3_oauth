@@ -2,8 +2,8 @@
 
 namespace li3_oauth\controllers;
 
-use \li3_oauth\models\Consumer;
-use \lithium\storage\Session;
+use li3_oauth\models\Consumer;
+use lithium\storage\Session;
 
 class TweetController extends \lithium\action\Controller {
 
@@ -12,7 +12,7 @@ class TweetController extends \lithium\action\Controller {
 		Consumer::config(array(
 			'host' => 'twitter.com',
 			'oauth_consumer_key' => '',
-			'oauth_consumer_secret' => '',
+			'oauth_consumer_secret' => ''
 		));
 	}
 

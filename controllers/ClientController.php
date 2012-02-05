@@ -8,8 +8,8 @@
 
 namespace li3_oauth\controllers;
 
-use \li3_oauth\models\Consumer;
-use \lithium\storage\Session;
+use li3_oauth\models\Consumer;
+use lithium\storage\Session;
 
 class ClientController extends \lithium\action\Controller {
 
