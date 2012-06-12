@@ -1,8 +1,8 @@
 <?php
 
-namespace li3_oauth\controllers;
+namespace li3_oauth_pecl\controllers;
 
-use li3_oauth\models\Consumer;
+use li3_oauth_pecl\models\Consumer;
 use lithium\storage\Session;
 
 class TweetController extends \lithium\action\Controller {

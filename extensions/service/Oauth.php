@@ -6,28 +6,18 @@
  * @license       http://opensource.org/licenses/bsd-license.php The BSD License
  */
 
-namespace li3_oauth\extensions\service;
+namespace li3_oauth_pecl\extensions\service;
+
+use \OAuth;
 
 /**
  * Oauth service class for handling requests/response to consumers and from providers
  *
  *
  */
-class Oauth extends \lithium\net\http\Service {
+class Oauth extends \OAuth {
 
 	protected $_autoConfig = array('classes' => 'merge');
-
-	/**
-	 * Fully-namespaced class references
-	 *
-	 * @var array
-	 */
-	protected $_classes = array(
-		'media'    => '\lithium\net\http\Media',
-		'request'  => '\lithium\net\http\Request',
-		'response' => '\lithium\net\http\Response',
-		'socket'   => '\lithium\net\socket\Context'
-	);
 
 	/**
 	 * Constructor
@@ -43,37 +33,93 @@ class Oauth extends \lithium\net\http\Service {
 	 */
 	public function __construct($config = array()) {
 		$defaults = array(
-			'scheme' => 'http',
-			'host' => 'localhost',
-			'proxy' => false,
-			'port' => 80,
-			'authorize' => '/oauth/authorize',
-			'authenticate' => '/oauth/authenticate',
-			'request' => '/oauth/request_token',
-			'access' => '/oauth/access_token',
-			'oauth_consumer_key' => 'key',
-			'oauth_consumer_secret' => 'secret'
+			'scheme'				=> 'http',
+			'host'					=> 'localhost',
+			'proxy'					=> false,
+			'authorize'				=> '/oauth/authorize',
+			'request_token'			=> '/oauth/request_token',
+			'access_token'			=> '/oauth/access_token',
+			'oauth_consumer_key'	=> 'key',
+			'oauth_consumer_secret'	=> 'secret',
+			'oauth_redirect'		=> false,
+			'oauth_debug'			=> false,
+			'oauth_auth_type'		=> 'authorization',
+			'oauth_sign_method'		=> 'HMAC-SHA1',
+			'oauth_version'			=> '1.0',
+			'request_engine'		=> 'streams',
+			'disable_ssl_checks'	=> false
 		);
 		$config += $defaults;
+		
+		extract($config);
+		
+		parent::__construct($config['oauth_consumer_key'], $config['oauth_consumer_secret'], null, $this->_getSignMethod($oauth_sign_method));
 
-		parent::__construct($config);
+		$this->_setAuthType($oauth_auth_type);		
+		$this->setVersion($oauth_version);
+		$this->setTimestamp(time());
+		
+		if ($disable_ssl_checks) {
+			$this->disableSSLChecks();
+		}
+		if ($oauth_debug) {
+			$this->enableDebug();
+		}
 	}
-
-	/**
-	 * If a key is set returns the value of that key
-	 * Without a key it will return config array
-	 *
-	 * @param string $key eg `oauth_consumer_key`
-	 * @return void
-	 */
-	public function config($key = null) {
-		if (isset($this->_config[$key])) {
-			return $this->_config[$key];
+	
+	protected _setRequestEngine($engine = 'streams') {
+		if($engine == 'streams') {
+			return $this->setRequestEngine(OAUTH_REQENGINE_STREAMS);
 		}
-		if ($key !== null) {
-			return $key;
+		if($engine == 'curl') {
+			return $this->setRequestEngine(OAUTH_REQENGINE_CURL);
 		}
-		return $this->_config;
+		return $this->setRequestEngine(OAUTH_REQENGINE_STREAMS);
+	}
+	
+	protected _getSignMethod($method = 'HMAC-SHA1') {
+		if($method === 'HMAC-SHA1') {
+			return OAUTH_SIG_METHOD_HMACSHA1;
+		}
+		if($method === 'RSA-SHA1') {
+			return OAUTH_SIG_METHOD_RSASHA1;
+		}
+		if($method === 'HMAC-SHA256') {
+			return OAUTH_SIG_METHOD_HMACSHA256;
+		}
+		return OAUTH_SIG_METHOD_HMACSHA1;
+	}
+	
+	protected _setAuthType($type = 'authorization') {
+		if($type === 'authorization') {
+			$this->setAuthType(OAUTH_AUTH_TYPE_AUTHORIZATION);
+		}
+		if($type === 'form') {
+			$this->setAuthType(OAUTH_AUTH_TYPE_FORM);
+		}
+		if($type === 'uri') {
+			$this->setAuthType(OAUTH_AUTH_TYPE_URI);
+		}
+		return $this->setAuthType(OAUTH_AUTH_TYPE_NONE);
+	}
+	
+	protected _getHttpType($method = 'get') {
+		if($type === 'get') {
+			return OAUTH_HTTP_METHOD_GET;
+		}
+		if($type === 'post') {
+			return OAUTH_HTTP_METHOD_POST;
+		}
+		if($type === 'delete') {
+			return OAUTH_HTTP_METHOD_DELETE;
+		}
+		if($type === 'put') {
+			return OAUTH_HTTP_METHOD_PUT;
+		}
+		if($type === 'head') {
+			return OAUTH_HTTP_METHOD_HEAD;
+		}
+		return OAUTH_HTTP_METHOD_GET;
 	}
 
 	/**
@@ -82,32 +128,12 @@ class Oauth extends \lithium\net\http\Service {
 	 * @param string $method
 	 * @param string $path
 	 * @param array $data encoded for the request
-	 * @param array $options oauth parameters
-	 *              - headers : send parameters in the header. (default: true)
-	 *              - realm : the realm to authenticate. (default: app directory name)
-	 * @return void
+	 *
 	 */
-	public function send($method, $path = null, $data = array(), array $options = array()) {
-		$defaults = array('headers' => true, 'realm' => basename(LITHIUM_APP_PATH));
-		$options += $defaults + $this->_config;
-		$url = $this->config($path);
-		$oauth = $this->sign($options + compact('data', 'url', 'method'));
-
-		if ($options['headers']) {
-			$header = 'OAuth realm="' . $options['realm'] . '",';
-			foreach ($oauth as $key => $val) {
-				$header .= $key . '="' . rawurlencode($val) . '",';
-				unset($oauth[$key]);
-			}
-			$options['headers'] = array('Authorization' => $header);
-		}
-		$options['host'] = $options['proxy'] ? $options['proxy'] : $options['host'];
-		$response = parent::send($method, $url, $data + $oauth, $options);
-
-		if (strpos($response, 'oauth_token=') !== false) {
-			return $this->_decode($response);
-		}
-		return $response;
+	public function send($method = 'POST', $path = null, $data = array(), array $options = array()) {
+		$method = $this->_getHttpType($method);
+		$options['headers'] += array();
+		return $this->fetch($this->url($path), $data, $method, $options['headers']);
 	}
 
 	/**
@@ -121,8 +147,8 @@ class Oauth extends \lithium\net\http\Service {
 	 */
 	public function url($url = null, array $options = array()) {
 		$defaults = array('token' => array('oauth_token' => false), 'usePort' => false);
-		$options += $defaults;
-		$url = $url ? $this->config($url) : null;
+		$options += $defaults + $this->_config;
+		$url = !empty($options[$url]) ? $options['url'] : $url;
 
 		if (!empty($options['token']['oauth_token'])) {
 			$url = "{$url}?oauth_token={$options['token']['oauth_token']}";
@@ -130,115 +156,6 @@ class Oauth extends \lithium\net\http\Service {
 		$base = $this->_config['host'];
 		$base .= ($options['usePort']) ? ":{$this->_config['port']}" : null;
 		return "{$this->_config['scheme']}://" . str_replace('//', '/', "{$base}/{$url}");
-	}
-
-	/**
-	 * Sign the request
-	 *
-	 * @param string $options
-	 *               - method: POST
-	 *               - url: url of request
-	 *               - oauth_signature_method: HMAC-SHA1
-	 *               - secret: config['oauth_consumer_secret']
-	 *               - params: extra params for to sign request
-	 *               - data: post data for request
-	 *               - token: array with keys oauth_token, oauth_token_secret
-	 * @return void
-	 */
-	public function sign($options = array()) {
-		$defaults = array(
-			'url' => '', 'method' => 'POST',
-			'oauth_signature_method' => 'HMAC-SHA1',
-			'oauth_consumer_secret' => $this->_config['oauth_consumer_secret'],
-			'params' => array(), 'data' => array(),
-			'token' => array('oauth_token' => null, 'oauth_token_secret' => null)
-		);
-		$options += $defaults;
-		$params = $this->_params((array) $options['params'] + (array) $options['token']);
-		$params += (array) $options['data'];
-		$base = $this->_base($options['method'], $options['url'], $params, $options);
-
-		$key = join("&", array(
-			rawurlencode($options['oauth_consumer_secret']),
-			rawurlencode($options['token']['oauth_token_secret'])
-		));
-		switch ($options['oauth_signature_method']) {
-			case 'HMAC-SHA1':
-				$signature = base64_encode(hash_hmac('sha1', $base, $key, true));
-			break;
-			default:
-				return $options['token']['oauth_token'];
-			break;
-		}
-		$params['oauth_signature'] = $signature;
-		return $params;
-	}
-
-	/**
-	 * undocumented function
-	 *
-	 * @param string $method
-	 * @param string $url
-	 * @param array $params
-	 * @param array $options
-	 * @return void
-	 */
-	protected function _base($method, $url, $params, $options) {
-		uksort($params, 'strcmp');
-		$query = array();
-		array_walk($params, function ($value, $key) use (&$query){
-			$query[] = $key . '=' . rawurlencode($value);
-		});
-		unset($options['token']);
-		$path = $this->url($url, $options);
-		return join("&", array(
-			strtoupper($method), rawurlencode($path), rawurlencode(join('&', $query))
-		));
-	}
-
-	/**
-	 * Handles Oauth specific parameters to ensure they have correct values and order.
-	 *
-	 * @param string $params
-	 * @return array $params
-	 */
-	protected function _params($params = array()) {
-		$defaults =  array(
-			'oauth_consumer_key' => 'key',
-			'oauth_nonce' => sha1(time() . mt_rand()),
-			'oauth_signature_method' => 'HMAC-SHA1',
-			'oauth_timestamp' => time(),
-			'oauth_token' => '',
-			'oauth_version' => '1.0'
-		);
-		$result = array();
-
-		foreach ($defaults as $key => $value) {
-			if (isset($params[$key])) {
-				$result[$key] = $params[$key];
-				continue;
-			}
-			if (isset($this->_config[$key])) {
-				$result[$key] = $this->_config[$key];
-				continue;
-			}
-			if ($value) {
-				$result[$key] = $value;
-			}
-		}
-		ksort($result);
-		return $result;
-	}
-
-	/**
-	 * Decodes the response body.
-	 *
-	 * @param string $query
-	 * @return void
-	 */
-	protected function _decode($query = null) {
-		parse_str($query, $data);
-		return $data;
 	}
 }
 

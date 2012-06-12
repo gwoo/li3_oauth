@@ -6,9 +6,9 @@
  * @license       http://opensource.org/licenses/bsd-license.php The BSD License
  */
 
-namespace li3_oauth\controllers;
+namespace li3_oauth_pecl\controllers;
 
-use li3_oauth\models\Consumer;
+use li3_oauth_pecl\models\Consumer;
 use lithium\storage\Session;
 
 class ClientController extends \lithium\action\Controller {
