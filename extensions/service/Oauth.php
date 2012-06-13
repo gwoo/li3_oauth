@@ -20,21 +20,21 @@ class Oauth extends \lithium\net\http\Service {
 
 	protected $_autoConfig = array('classes' => 'merge');
 	protected $_defaults = array(
-		'scheme'				=> 'http',
-		'host'					=> 'localhost',
-		'proxy'					=> false,
-		'authorize'				=> '/oauth/authorize',
-		'request_token'			=> '/oauth/request_token',
-		'access_token'			=> '/oauth/access_token',
-		'oauth_consumer_key'	=> 'OAUTH_CONSUMER_KEY',
-		'oauth_consumer_secret'	=> 'OAUTH_CONSUMER_SECRET',
-		'oauth_callback'		=> null,
-		'oauth_auth_type'		=> 'authorization',
-		'oauth_sign_method'		=> 'HMAC-SHA1',
-		'oauth_version'			=> '1.0',
-		'oauth_debug'			=> false,
-		'request_engine'		=> 'streams',
-		'enable_ssl_checks'		=> false
+		'scheme'					=> 'http',
+		'host'						=> 'localhost',
+		'proxy'						=> false,
+		'authorize'					=> '/oauth/authorize',
+		'request_token'				=> '/oauth/request_token',
+		'access_token'				=> '/oauth/access_token',
+		'oauth_consumer_key'		=> 'OAUTH_CONSUMER_KEY',
+		'oauth_consumer_secret'		=> 'OAUTH_CONSUMER_SECRET',
+		'oauth_callback'			=> null,
+		'oauth_auth_type'			=> 'authorization',
+		'oauth_signature_method'	=> 'HMAC-SHA1',
+		'oauth_version'				=> '1.0',
+		'oauth_debug'				=> false,
+		'request_engine'			=> 'streams',
+		'enable_ssl_checks'			=> false
 	);
 	protected static $_OAuth;
 	
@@ -78,7 +78,7 @@ class Oauth extends \lithium\net\http\Service {
 		static::$_OAuth = new PeclOauth(
 			$oauth_consumer_key,
 			$oauth_consumer_secret,
-			$this->_getSignMethod($oauth_sign_method),
+			$this->_getSignMethod($oauth_signature_method),
 			(int) $this->_getAuthType($oauth_auth_type)
 		);
 		
@@ -246,9 +246,15 @@ class Oauth extends \lithium\net\http\Service {
  		$url = $this->config($path);
  		$options['host'] = $options['proxy'] ? $options['proxy'] : $options['host'];
 		$url = $this->url($url, $options);
-
+		
+		if(!empty($options['token']['oauth_token_secret'])) {
+			if(!$this->_setToken($options['token'])) {
+				return false;
+			}
+		}
+		
 		$fetch = static::$_OAuth->fetch($url, $data, $this->_getMethodType($method), $options['headers']);
-		return $fetch ? static::$_OAuth->getLastResponseInfo() : false;
+		return $fetch ? static::$_OAuth->getLastResponse() : false;
  	}
 
 	/**

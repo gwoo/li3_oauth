@@ -29,34 +29,27 @@ class ClientController extends \lithium\action\Controller {
 
 	public function index() {
 		$message = 'failed';
-		
+
 		$failed = in_array('failed', $this->request->params['args']) ? true : false;
 
-		$token = Session::read("{$this->_config['namespace']}");
-		if (!$failed && empty($token) && !empty($this->request->query['oauth_token'])) {
-			$this->_storeTokens($this->request->query['oauth_token']);
-			Session::write("{$this->_config['namespace']}.oauth_verifier", $oauth_verifier);
-			
+		$access = Session::read("{$this->_config['namespace']}.access");
+		$token = Session::read("{$this->_config['namespace']}.request");
+		if (!$failed && empty($access) && !empty($this->request->query['oauth_token'])) {
+			$token = is_array($token) ? $this->request->query + $token : $token;
+			Session::write("{$this->_config['namespace']}.request", $token);
 			return $this->redirect('Client::access', array('exit' => true));
 		}
 
-		if (!$failed && empty($token)) {
+		if (!$failed && empty($access)) {
 			return $this->redirect('Client::authorize', array('exit' => true));
 		}
 		
-		$token = Session::read("{$this->_config['namespace']}");
 		if(!$failed) {
 			try {
-				$token = Session::read("{$this->_config['namespace']}.request");
-				
-				$result = Consumer::get('/v2/blog/ambientdata.org/posts/draft',
-					array(
-						'api_key'		=> $this->_config['oauth_consumer_key'],
-						'oauth_token'	=> $token['oauth_token']
-					),
-					array('host' => 'api.tumblr.com')
-				);
-
+				$result = Consumer::post('/user/info', array(), array(
+					'host'	=> 'api.tumblr.com/v2',
+					'token'	=> $access
+				));
 				$message = json_decode($result);
 			} catch(\OAuthException $E) {
 				$result = array(
@@ -76,33 +69,22 @@ class ClientController extends \lithium\action\Controller {
 		Session::delete($this->_config['namespace']);
 		return $this->redirect(array('Client::index', 'args' => array('failed' => true)), array('exit' => true));
 	}
-	
-	protected function _storeTokens($oauthToken = false, $oauthTokenSecret = false) {
-		if($oauthToken !== false) {
-			Session::write("{$this->_config['namespace']}.oauth_token", $oauthToken);
-			if($oauthTokenSecret !== false) {
-				Session::write("{$this->_config['namespace']}.oauth_token_secret", $oauthTokenSecret);
-			}
-			return true;
-		}
-		return false;
-	}
 
 	public function authorize() {
 		$token = Consumer::token('request');
 		if(empty($token)) {
 			return $this->_failed();
 		}
-		$this->_storeTokens($token['oauth_token'], $token['oauth_token_secret']);
+		Session::write("{$this->_config['namespace']}.request", $token);
 		return $this->redirect(Consumer::authorize($token), array('exit' => true));
 	}
 
 	public function access() {
-		$token = array('oauth_token' => Session::read("{$this->_config['namespace']}.oauth_token"));
+		$token = Session::read("{$this->_config['namespace']}.request");
 		if(!empty($token)) {
 			$access = Consumer::token('access', compact('token'));
 			if(!empty($access)) {
-				$this->_storeTokens($access['oauth_token'], $access['oauth_token_secret']);
+				Session::write("{$this->_config['namespace']}.access", $access);
 				return $this->redirect('Client::index', array('exit' => true));
 			}
 		}
