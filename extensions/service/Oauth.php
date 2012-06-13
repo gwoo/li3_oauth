@@ -6,7 +6,7 @@
  * @license       http://opensource.org/licenses/bsd-license.php The BSD License
  */
 
-namespace li3_oauth_pecl\extensions\service;
+namespace li3_pecl_oauth\extensions\service;
 
 use \OAuth as PeclOauth;
 use \OAuthException;

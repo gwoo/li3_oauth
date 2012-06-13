@@ -3,7 +3,7 @@
 use lithium\net\http\Router;
 
 Router::connect('/oauth/client/{:action}/{:args}', array(
-	'library' => 'li3_oauth_pecl', 'controller' => 'li3_oauth_pecl.client', 'action' => 'index'
+	'library' => 'li3_pecl_oauth', 'controller' => 'li3_pecl_oauth.client', 'action' => 'index'
 ));
 
 ?>
