@@ -252,9 +252,29 @@ class Oauth extends \lithium\net\http\Service {
 				return false;
 			}
 		}
+<<<<<<< HEAD
 		
 		$fetch = static::$_OAuth->fetch($url, $data, $this->_getMethodType($method), $options['headers']);
 		return $fetch ? static::$_OAuth->getLastResponse() : false;
+=======
+
+		if(!empty($options['access']['oauth_token_secret'])) {
+			if(!$this->_setToken($options['access'])) {
+				return false;
+			}
+		}
+		
+		
+		try {
+			$fetch = static::$_OAuth->fetch($url, $data, $this->_getMethodType($method), $options['headers']);
+		} catch (OAuthException $E) {
+			$message = $E->getMessage();
+			$lastResponseInfo = static::$_OAuth->getLastResponseInfo();
+			$lastResponse = static::$_OAuth->getLastResponse();
+			return compact('message', 'lastResponseInfo', 'lastResponse', 'url', 'data', 'method', 'options');
+		}
+		return $fetch ? static::$_OAuth->getLastResponse() : static::$_OAuth->getLastResponseInfo();
+>>>>>>> 11b600c... fixed token bugs, added redirect configs, tested with tumblr and twitter.
  	}
 
 	/**
@@ -277,6 +297,9 @@ class Oauth extends \lithium\net\http\Service {
 			}
 			if(!empty($options['token']['oauth_token_secret'])) {
 				$this->_setToken($options['token']);
+			}
+			if(!empty($options['access']['oauth_token_secret'])) {
+				$this->_setToken($options['access']);
 			}
 		}
 		$url = $url ? $this->config($url) : null;
