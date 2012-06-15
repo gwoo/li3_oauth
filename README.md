@@ -68,7 +68,7 @@ class TwitterExampleController extends \li3_pecl_oauth\controllers\ClientControl
 
 ##Roadmap##
 * Try to make it more lithium way (as socket and service)
-* Create other API libraries compatible works with this
+* Create other API libraries compatible with this
 * Add provider support (only consumer right now)
 * Add lithium sockets support
 
