@@ -6,22 +6,22 @@
 ##Installation##
 
 * PECL
-	* With homebrew, [click here](https://github.com/josegonzalez/homebrew-php)(recommended if you're on osx).
+	* With homebrew (recommended if you're on osx), [click here](https://github.com/josegonzalez/homebrew-php).
 	* With PECL
-	```sh
-	pecl install oauth
-	```
+```sh
+pecl install oauth
+```
 
 * Library
 	* With Git
 		*Submodule
-		```sh
-		cd path/to/your/lithium/libraries; git submodule add https://github.com/JacopKane/li3_pecl_oauth.git; git submodule init li3_pecl_oauth;
-		```
+```sh
+cd path/to/your/lithium/libraries; git submodule add https://github.com/JacopKane/li3_pecl_oauth.git; git submodule init li3_pecl_oauth;
+```
 		*Clone
-		```sh
-		cd path/to/your/lithium/libraries; git clone https://github.com/JacopKane/li3_pecl_oauth/zipball/master;
-		```
+```sh
+cd path/to/your/lithium/libraries; git clone https://github.com/JacopKane/li3_pecl_oauth/zipball/master;
+```
 	* Download [from here](https://github.com/JacopKane/li3_pecl_oauth/zipball/master)
 
 ##Configuration##
