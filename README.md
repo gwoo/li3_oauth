@@ -6,7 +6,7 @@
 ##Installation##
 
 * PECL
-	* With homebrew (recommended if you're on osx), [click here](https://github.com/josegonzalez/homebrew-php).
+	* With homebrew (recommended if you're on osx). For info [click here](https://github.com/josegonzalez/homebrew-php).
 	* With PECL
 ```
 pecl install oauth
