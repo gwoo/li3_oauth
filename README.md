@@ -13,12 +13,11 @@ pecl install oauth
 ```
 
 * Library
-	* With Git
-		*Submodule
+	* With Git Submodule
 ```
 cd path/to/your/lithium/libraries; git submodule add https://github.com/JacopKane/li3_pecl_oauth.git; git submodule init li3_pecl_oauth;
 ```
-		*Clone
+	* With Git Clone
 ```
 cd path/to/your/lithium/libraries; git clone https://github.com/JacopKane/li3_pecl_oauth/zipball/master;
 ```
