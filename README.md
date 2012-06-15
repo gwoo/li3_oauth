@@ -1,12 +1,12 @@
 #li3_PECL_oAuth#
 
 ##Requirements##
-PECL Oauth Extension
+[PECL Oauth Extension](http://pecl.php.net/package/oauth)
 
 ##Installation##
 
 * PECL
-	* With homebrew, [click here](https://github.com/josegonzalez/homebrew-php) (recommended if you're on osx).
+	* With homebrew, [click here](https://github.com/josegonzalez/homebrew-php)(recommended if you're on osx).
 	* With PECL
 	```sh
 	pecl install oauth
@@ -22,10 +22,7 @@ PECL Oauth Extension
 		```sh
 		cd path/to/your/lithium/libraries; git clone https://github.com/JacopKane/li3_pecl_oauth/zipball/master;
 		```
-	* Download from here
-	```sh
-	pecl install oauth
-	```
+	* Download [from here](https://github.com/JacopKane/li3_pecl_oauth/zipball/master)
 
 ##Configuration##
 ```php
@@ -79,4 +76,4 @@ class TwitterExampleController extends \li3_pecl_oauth\controllers\ClientControl
 Feel free to contribute.
 
 ##Me##
-[@JacopKane]{https://twitter.com/JacopKane}
+[@JacopKane](https://twitter.com/JacopKane)
