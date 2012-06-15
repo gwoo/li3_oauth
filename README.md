@@ -74,7 +74,7 @@ class TwitterExampleController extends \li3_pecl_oauth\controllers\ClientControl
 ?>
 ```
 
-##Todo##
+##To-do##
 * Try to make it more lithium way (as socket and service)
 * Create other API libraries compatible with this
 * Add provider support (only consumer right now)
