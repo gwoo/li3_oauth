@@ -1,4 +1,4 @@
-#li3_PECL_oAuth#
+#li3_pecl_oauth#
 
 ##Requirements##
 [PECL Oauth Extension](http://pecl.php.net/package/oauth)
