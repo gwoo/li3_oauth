@@ -9,14 +9,14 @@
 	* With homebrew (recommended if you're on osx). For info [click here](https://github.com/josegonzalez/homebrew-php).
 	* With PECL
 	
-```
+```bash
 pecl install oauth
 ```
 
 * Library
 	* With Git Submodule
 	
-```
+```bash
 cd path/to/your/lithium/libraries
 git submodule add https://github.com/JacopKane/li3_pecl_oauth.git
 git submodule init li3_pecl_oauth
