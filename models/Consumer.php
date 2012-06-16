@@ -6,19 +6,19 @@
  * @license       http://opensource.org/licenses/bsd-license.php The BSD License
  */
 
-namespace li3_oauth\models;
+namespace li3_pecl_oauth\models;
 
 class Consumer extends \lithium\core\StaticObject {
 
 	/**
 	 * Holds an instance of the oauth service class
 	 *
-	 * @see \li3_oauth\extensions\services\Oauth
+	 * @see \li3_pecl_oauth\extensions\services\Oauth
 	 */
 	protected static $_service = null;
 
 	protected static $_classes = array(
-		'oauth' => '\li3_oauth\extensions\service\Oauth'
+		'oauth' => '\li3_pecl_oauth\extensions\service\Oauth'
 	);
 
 	/**
@@ -69,9 +69,7 @@ class Consumer extends \lithium\core\StaticObject {
 	 * @return string
 	 */
 	public static function token($type, array $options = array()) {
-		$defaults = array('method' => 'POST', 'oauth_signature_method' => 'HMAC-SHA1');
-		$options += $defaults;
-		return static::$_service->send($options['method'], $type, array(), $options);
+		return static::$_service->token($type, $options);
 	}
 
 	/**
@@ -94,37 +92,6 @@ class Consumer extends \lithium\core\StaticObject {
 	 */
 	public static function authenticate(array $token, array $options = array()) {
 		return static::$_service->url('authenticate', compact('token') + $options);
-	}
-
-	/**
-	 * undocumented function
-	 *
-	 * @param string $key
-	 * @param string $value
-	 * @return void
-	 */
-	public static function store($key, $value) {
-		return static::$_service->storage->write($key, $value);
-	}
-
-	/**
-	 * undocumented function
-	 *
-	 * @param string $key
-	 * @return void
-	 */
-	public static function fetch($key) {
-		return static::$_service->storage->read($key);
-	}
-
-	/**
-	 * undocumented function
-	 *
-	 * @param string $key
-	 * @return void
-	 */
-	public static function delete($key) {
-		return static::$_service->storage->remove($key);
 	}
 }
 

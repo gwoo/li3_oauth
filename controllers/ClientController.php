@@ -6,64 +6,87 @@
  * @license       http://opensource.org/licenses/bsd-license.php The BSD License
  */
 
-namespace li3_oauth\controllers;
+namespace li3_pecl_oauth\controllers;
 
-use li3_oauth\models\Consumer;
+use li3_pecl_oauth\models\Consumer;
 use lithium\storage\Session;
+use lithium\core\Libraries;
 
 class ClientController extends \lithium\action\Controller {
-
+	protected $_config = array();
 	protected function _init() {
 		parent::_init();
-		Consumer::config(array(
-			'host' => $this->request->env('SERVER_NAME'),
-			'oauth_consumer_key' => '59f87a2f8e430bbad5c84b61ed06304fc9204bcb',
-			'oauth_consumer_secret' => '4b498c24588bc56685e68f0d2c52ee6becf96ba3',
-			'request' => $this->request->env('base') . '/oauth/request_token',
-			'access' => $this->request->env('base') . '/oauth/access_token',
-			'authorize' => $this->request->env('base') . '/oauth/authorize',
-			'port' => 30501
-		));
+
+		$this->_config = (array) Libraries::get('li3_pecl_oauth');
+		$this->_config += array(
+			'host'				=> $this->request->env('SERVER_NAME'),
+			'oauth_callback'	=> $this->request->env('SERVER_NAME') . '/oauth/client',
+			'namespace'			=> 'li3_pecl_oauth',
+			'redirect_success'	=> 'Client::index',
+			'redirect_failed'	=> array('Client::index', 'args' => array('failed' => true))
+		);
+		return Consumer::config($this->_config) ? true : false;
 	}
 
 	public function index() {
-		$message = null;
-		$token = Session::read('oauth.access');
-		if (empty($token) && !empty($this->request->query['oauth_token'])) {
-			$this->redirect('Client::access');
+		$failed = in_array('failed', $this->request->params['args']) ? true : false;
+		
+		if($failed) { return false; }
+
+		$access = Session::read("{$this->_config['namespace']}.access");
+		$token = Session::read("{$this->_config['namespace']}.request");
+		
+		if (!$failed && empty($access) && !empty($this->request->query['oauth_token'])) {
+			$token = is_array($token) ? $this->request->query + $token : $token;
+			Session::write("{$this->_config['namespace']}.request", $token);
+			return $this->redirect('Client::access', array('exit' => true));
 		}
 
-		if (empty($token)) {
-			$this->redirect('Client::authorize');
+		if (!$failed && empty($access)) {
+			return $this->redirect('Client::authorize', array('exit' => true));
 		}
-		return compact('message');
+		
+		$redirect = $this->_config['redirect_success'];
+		return $redirect === 'Client::index' ? true : $this->redirect($redirect, array('exit' => true));
+	}
+
+	protected function _failed() {
+		Session::delete($this->_config['namespace']);
+		return $this->redirect($this->_config['redirect_failed'], array('exit' => true));
 	}
 
 	public function authorize() {
 		$token = Consumer::token('request');
-		if (is_string($token)) {
-			return $token;
+		if(empty($token)) {
+			return $this->_failed(array('Client::index', 'args' => array('failed' => true)));
 		}
-		Session::write('oauth.request', $token);
-		$this->redirect(Consumer::authorize($token));
+		Session::write("{$this->_config['namespace']}.request", $token);
+		return $this->redirect(Consumer::authorize($token), array('exit' => true));
 	}
 
 	public function access() {
-		$token = Session::read('oauth.request');
-		$access = Consumer::token('access', compact('token'));
-		if (is_string($token)) {
-			return $token;
+		$token = Session::read("{$this->_config['namespace']}.request");
+		if(!empty($token)) {
+			$access = Consumer::token('access', compact('token'));
+			if(!empty($access)) {
+				Session::write("{$this->_config['namespace']}.access", $access);
+				return $this->redirect('Client::index', array('exit' => true));
+			}
 		}
-		Session::write('oauth.access', $access);
-		$this->redirect('Client::index');
+		return $this->_failed();
+	}
+
+	public function logout() {
+		Session::delete($this->_config['namespace']);
+		return $this->redirect('Client::index', array('exit' => true));
 	}
 
 	public function login() {
-		$token = Session::read('oauth.request');
+		$token = Session::read("{$this->_config['namespace']}.request");
 		if (empty($token)) {
-			$this->redirect('Client::authorize');
+			return $this->redirect('Client::authorize', array('exit' => true));
 		}
-		$this->redirect(Consumer::authenticate($token));
+		return $this->redirect(Consumer::authenticate($token), array('exit' => true));
 	}
 }
 
