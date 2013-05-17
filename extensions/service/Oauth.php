@@ -104,7 +104,7 @@ class Oauth extends \lithium\net\http\Service {
 		$options['host'] = $options['proxy'] ? $options['proxy'] : $options['host'];
 		$response = parent::send($method, $url, $data + $oauth, $options);
 
-		if (strpos($response, 'oauth_token=') !== false) {
+		if (is_string($response) && strpos($response, 'oauth_token=') !== false) {
 			return $this->_decode($response);
 		}
 		return $response;
